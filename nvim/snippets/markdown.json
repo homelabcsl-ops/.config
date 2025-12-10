@@ -1,0 +1,28 @@
+{
+  "Work Metadata": {
+    "prefix": "meta-work",
+    "body": [
+      "tags: [work, project]",
+      "status: active",
+      "priority: high"
+    ],
+    "description": "Insert Work Tags"
+  },
+  "Draft Status": {
+    "prefix": "meta-draft",
+    "body": [
+      "status: draft",
+      "review_date: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}"
+    ],
+    "description": "Set status to draft with date"
+  },
+  "Code Block": {
+    "prefix": "cblock",
+    "body": [
+      "```${1:lang}",
+      "$0",
+      "```"
+    ],
+    "description": "Insert Code Block"
+  }
+}
