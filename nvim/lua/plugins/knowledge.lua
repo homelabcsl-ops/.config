@@ -124,6 +124,7 @@ return {
     opts = {
       workspaces = {
         { name = "personal", path = "~/obsidian/personal" },
+        { name = "devops", path = "obsidian/devops" },
       },
       daily_notes = {
         folder = "dailies",
@@ -157,16 +158,20 @@ return {
     },
   },
 
-  -- 5. SAFETY (Git Auto-Sync with)
+  -- 5. SAFETY (Multi-Vault Git Auto-Sync)
   {
     "nvim-lua/plenary.nvim",
     name = "obsidian-git-sync",
     config = function()
-      local vault_path = vim.fn.expand("~/obsidian/personal")
+      -- Define ALL your vaults here
+      local vaults = {
+        vim.fn.expand("~/obsidian/personal"),
+        vim.fn.expand("~/obsidian/devops"),
+      }
 
-      -- Helper to run git commands in the vault, no matter where nvim is opened
-      local function run_git(args)
-        local cmd = { "git", "-C", vault_path }
+      -- Helper to run git commands
+      local function run_git(path, args)
+        local cmd = { "git", "-C", path }
         for _, v in ipairs(args) do
           table.insert(cmd, v)
         end
@@ -174,38 +179,41 @@ return {
       end
 
       -- Notification Helper
-      local function notify(msg)
+      local function notify(msg, level)
         if _G.Snacks then
-          Snacks.notify(msg, { title = "Obsidian Git" })
+          Snacks.notify(msg, { title = "Obsidian Git", level = level })
         else
-          vim.notify(msg)
+          vim.notify(msg, level or vim.log.levels.INFO, { title = "Obsidian Git" })
         end
       end
 
-      -- Auto-Pull on Open (Always runs)
+      -- Auto-Pull on Open (Loops through all vaults)
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
-          -- Check if vault exists first
-          if vim.fn.isdirectory(vault_path) == 1 then
-            vim.fn.jobstart({ "git", "-C", vault_path, "pull" }, {
-              on_exit = function(_, code)
-                if code == 0 then
-                  notify("Vault Pull Successful")
-                end
-              end,
-            })
+          for _, vault in ipairs(vaults) do
+            if vim.fn.isdirectory(vault) == 1 then
+              vim.fn.jobstart({ "git", "-C", vault, "pull" }, {
+                on_exit = function(_, code)
+                  if code == 0 then
+                    notify("Pulled: " .. vim.fn.fnamemodify(vault, ":t"))
+                  end
+                end,
+              })
+            end
           end
         end,
       })
 
-      -- Auto-Push on Exit (Always runs)
+      -- Auto-Push on Exit (Loops through all vaults)
       vim.api.nvim_create_autocmd("VimLeavePre", {
         callback = function()
-          if vim.fn.isdirectory(vault_path) == 1 then
-            notify("Backing up vault...")
-            run_git({ "add", "." })
-            run_git({ "commit", "-m", "Auto-backup" })
-            run_git({ "push" })
+          for _, vault in ipairs(vaults) do
+            if vim.fn.isdirectory(vault) == 1 then
+              notify("Backing up: " .. vim.fn.fnamemodify(vault, ":t"))
+              run_git(vault, { "add", "." })
+              run_git(vault, { "commit", "-m", "Auto-backup" })
+              run_git(vault, { "push" })
+            end
           end
         end,
       })
