@@ -135,7 +135,7 @@ return {
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },
-      completion = { nvim_cmp = true, min_chars = 2 },
+      completion = { nvim_cmp = false, min_chars = 2 },
       mappings = {
         ["gf"] = {
           action = function()
