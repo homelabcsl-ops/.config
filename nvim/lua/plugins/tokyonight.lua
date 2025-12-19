@@ -19,17 +19,33 @@ return {
         transparent = false,
         on_colors = function(colors)
           -- 1. Apply Mission Control UI Colors
-          colors.blue = "#a9b1d6" -- Variables (Just Grey)
-          colors.cyan = "#a9b1d6" -- Operators (Just Grey)
-          colors.green = "#c3e88d" -- Strings (Pale Green - keep distinct)
-          colors.magenta = "#89ddff" -- Keywords (Subtle Blue)
-          colors.orange = "#a9b1d6" -- Constants (Just Grey)
-          colors.purple = "#89ddff" -- Functions (Subtle Blue)
-          colors.comment = "#565f89" -- Comments (Dark Grey)  -- 2. SYNTAX SECTION (DEFAULTS)
-          -- The overrides for colors.blue, colors.green, etc. are REMOVED.
-          -- Your code will now use the standard, vibrant TokyoNight palette.
+          colors.bg = bg
+          colors.bg_dark = bg_dark
+          colors.bg_float = bg_dark
+          colors.bg_popup = bg_dark
+          colors.bg_sidebar = bg_dark
+          colors.bg_statusline = bg_dark
+          colors.bg_search = bg_search
+          colors.bg_visual = bg_visual
+          colors.bg_highlight = bg_highlight
+          colors.border = border
+          colors.fg = fg
+          colors.fg_dark = fg_dark
+          colors.fg_float = fg
+          colors.fg_sidebar = fg_dark
+          colors.fg_gutter = fg_gutter
+
+          -- 2. Apply Boutique Warmth Syntax Colors
+          colors.blue = "#e0af68" -- Variables (Gold)
+          colors.cyan = "#90bf60" -- Operators (Olive)
+          colors.green = "#98c379" -- Strings (Sage Green)
+          colors.magenta = "#d19a66" -- Keywords (Soft Orange)
+          colors.orange = "#ff9e64" -- Constants (Burnt Orange)
+          colors.purple = "#e5c07b" -- Functions (Mustard)
+          colors.red = "#e06c75" -- Errors (Soft Red)
         end,
       })
+
       vim.cmd([[colorscheme tokyonight]])
     end,
   },
