@@ -1,40 +1,21 @@
 return {
   {
-    "rebelot/kanagawa.nvim",
+    "sainnhe/gruvbox-material",
     priority = 1000,
     config = function()
-      require("kanagawa").setup({
-        theme = "dragon", -- "dragon" is darker/greyer than "wave"
-        commentStyle = { italic = true },
-        keywordStyle = { italic = true },
-        colors = {
-          theme = {
-            all = {
-              ui = {
-                bg_gutter = "none", -- seamless line numbers
-              },
-            },
-          },
-        },
-        overrides = function(colors)
-          local bg_charcoal = "#161617" -- Your preferred background
-          return {
-            -- Force your Mission Control background
-            Normal = { bg = bg_charcoal },
-            NormalFloat = { bg = "#0f0f10" },
-            NvimTreeNormal = { bg = bg_charcoal },
+      -- Force the deepest, darkest background logic
+      vim.g.gruvbox_material_background = "hard"
+      vim.g.gruvbox_material_foreground = "material" -- Softens the white text
+      vim.g.gruvbox_material_enable_italic = 1
+      vim.g.gruvbox_material_ui_contrast = "high" -- Better separation for split panes
 
-            -- Mute the Search colors (as requested)
-            Search = { fg = "#c1c1c1", bg = "#3d4455" },
+      vim.cmd.colorscheme("gruvbox-material")
 
-            -- Dashboard Specifics
-            SnacksDashboardHeader = { fg = "#7aa2f7" }, -- Keep the header distinct
-            SnacksDashboardFooter = { fg = "#787c99" },
-            SnacksDashboardKey = { fg = "#e0af68" },
-          }
-        end,
-      })
-      vim.cmd("colorscheme kanagawa")
+      -- Manual Overrides to match your specific Hex preferences
+      -- (Gruvbox configures via autocmds)
+      vim.api.nvim_set_hl(0, "Normal", { bg = "#161617" })
+      vim.api.nvim_set_hl(0, "SignColumn", { bg = "#161617" })
+      vim.api.nvim_set_hl(0, "SnacksDashboardHeader", { fg = "#d3869b" }) -- Soft Purple
     end,
   },
 }
