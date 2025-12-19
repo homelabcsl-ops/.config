@@ -1,20 +1,22 @@
 return {
   {
     "folke/tokyonight.nvim",
-    priority = 1000, -- make sure to load this before all the other start plugins
+    priority = 1000,
     config = function()
-      local bg = "#011628"
-      local bg_dark = "#011423"
-      local bg_highlight = "#143652"
-      local bg_search = "#0A64AC"
-      local bg_visual = "#275378"
-      local fg = "#CBE0F0"
-      local fg_dark = "#B4D0E9"
-      local fg_gutter = "#627E97"
-      local border = "#547998"
+      -- MUTED MISSION CONTROL PALETTE
+      local bg = "#161617" -- Neutral Charcoal (Less "Blue" punch)
+      local bg_dark = "#0f0f10" -- Darker for UI separation
+      local bg_highlight = "#232326" -- Subtle line focus
+      local bg_search = "#3d4455" -- Muted steel blue for search
+      local bg_visual = "#2c3340" -- Low-vibrancy selection
+      local fg = "#c1c1c1" -- Soft off-white (prevents "ghosting" on black)
+      local fg_dark = "#787c99" -- Dimmed secondary text
+      local fg_gutter = "#43444f" -- Very muted line numbers
+      local border = "#27272a" -- Minimalist structural borders
 
       require("tokyonight").setup({
         style = "night",
+        transparent = false,
         on_colors = function(colors)
           colors.bg = bg
           colors.bg_dark = bg_dark
@@ -31,9 +33,14 @@ return {
           colors.fg_float = fg
           colors.fg_gutter = fg_gutter
           colors.fg_sidebar = fg_dark
+
+          -- Soften the actual syntax colors (Muted but distinct)
+          colors.blue = "#7aa2f7" -- Keep logic visible
+          colors.green = "#73daca" -- Muted teal for strings
+          colors.magenta = "#bb9af7" -- Soft purple for keywords
+          colors.orange = "#e0af68" -- Dull gold for constants
         end,
       })
-      -- load the colorscheme here
       vim.cmd([[colorscheme tokyonight]])
     end,
   },
