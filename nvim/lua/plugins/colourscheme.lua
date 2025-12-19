@@ -1,36 +1,22 @@
 return {
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "shaunsingh/nord.nvim",
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "mocha",
-        color_overrides = {
-          mocha = {
-            base = "#161617", -- Your Neutral Charcoal
-            mantle = "#0f0f10", -- Your Darker UI split
-            crust = "#0f0f10",
-            text = "#c1c1c1", -- Your Soft off-white
-            subtext1 = "#787c99",
-            overlay0 = "#43444f", -- Muted line numbers
-          },
-        },
-        highlight_overrides = {
-          mocha = function(c)
-            return {
-              -- Align Dashboard colors
-              SnacksDashboardHeader = { fg = c.blue },
-              SnacksDashboardIcon = { fg = c.teal },
-              SnacksDashboardKey = { fg = c.peach },
+      vim.g.nord_contrast = true
+      vim.g.nord_borders = true
+      vim.g.nord_italic = true
 
-              -- Mute the selection/visual mode
-              Visual = { bg = "#2c3340" },
-            }
-          end,
-        },
+      require("nord").set_colors({
+        ["nord0"] = "#161617", -- Force your background
+        ["nord1"] = "#0f0f10", -- Darker split
+        ["nord3"] = "#43444f", -- Comments/Gutters
       })
-      vim.cmd.colorscheme("catppuccin")
+
+      vim.cmd.colorscheme("nord")
+
+      -- Ensure Dashboard Header pops slightly
+      vim.api.nvim_set_hl(0, "SnacksDashboardHeader", { fg = "#88C0D0" })
     end,
   },
 }
