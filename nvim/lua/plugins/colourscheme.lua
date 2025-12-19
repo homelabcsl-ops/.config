@@ -1,22 +1,25 @@
 return {
   {
-    "shaunsingh/nord.nvim",
+    "rose-pine/neovim",
+    name = "rose-pine",
     priority = 1000,
     config = function()
-      vim.g.nord_contrast = true
-      vim.g.nord_borders = true
-      vim.g.nord_italic = true
+      require("rose-pine").setup({
+        variant = "main",
+        dark_variant = "main",
+        dim_nc_background = true, -- Dim inactive windows
 
-      require("nord").set_colors({
-        ["nord0"] = "#161617", -- Force your background
-        ["nord1"] = "#0f0f10", -- Darker split
-        ["nord3"] = "#43444f", -- Comments/Gutters
+        highlight_groups = {
+          -- Force your specific greys
+          Normal = { bg = "#161617", fg = "#c1c1c1" },
+          StatusLine = { bg = "#0f0f10", fg = "#787c99" },
+
+          -- Dashboard specific
+          SnacksDashboardHeader = { fg = "love" }, -- Red/Pink mute
+          SnacksDashboardDesc = { fg = "text" },
+        },
       })
-
-      vim.cmd.colorscheme("nord")
-
-      -- Ensure Dashboard Header pops slightly
-      vim.api.nvim_set_hl(0, "SnacksDashboardHeader", { fg = "#88C0D0" })
+      vim.cmd("colorscheme rose-pine")
     end,
   },
 }
