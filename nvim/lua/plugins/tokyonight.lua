@@ -3,20 +3,22 @@ return {
     "folke/tokyonight.nvim",
     priority = 1000,
     config = function()
-      -- MUTED MISSION CONTROL PALETTE (Matches the image)
-      local bg = "#161617" -- Neutral Charcoal Background
-      local bg_dark = "#0f0f10" -- Darker UI separation panes
+      -- MUTED MISSION CONTROL PALETTE (Background & UI Only)
+      local bg = "#161617" -- Neutral Charcoal
+      local bg_dark = "#0f0f10" -- Darker UI separation
+      local bg_highlight = "#232326" -- Subtle line focus
       local bg_search = "#3d4455" -- Muted steel blue for search
-      local bg_visual = "#2c3340" -- Low-vibrancy selection background
-      local fg = "#c1c1c1" -- Soft off-white main text
-      local fg_dark = "#787c99" -- Dimmed secondary text (paths/comments)
+      local bg_visual = "#2c3340" -- Low-vibrancy selection
+      local fg = "#c1c1c1" -- Soft off-white
+      local fg_dark = "#787c99" -- Dimmed secondary text
+      local fg_gutter = "#43444f" -- Muted line numbers
       local border = "#27272a" -- Minimalist structural borders
 
       require("tokyonight").setup({
         style = "night",
         transparent = false,
         on_colors = function(colors)
-          -- Apply the custom palette base
+          -- 1. Apply Mission Control UI Colors
           colors.bg = bg
           colors.bg_dark = bg_dark
           colors.bg_float = bg_dark
@@ -25,18 +27,17 @@ return {
           colors.bg_statusline = bg_dark
           colors.bg_search = bg_search
           colors.bg_visual = bg_visual
+          colors.bg_highlight = bg_highlight
           colors.border = border
           colors.fg = fg
           colors.fg_dark = fg_dark
           colors.fg_float = fg
           colors.fg_sidebar = fg_dark
+          colors.fg_gutter = fg_gutter
 
-          -- Soften the distinct syntax colors seen in the dashboard
-          colors.blue = "#7aa2f7" -- Section Headers ("Control Deck")
-          colors.green = "#73daca" -- Status Indicators ("ACTIVE", "READY")
-          colors.magenta = "#bb9af7" -- Soft purple accents
-          colors.orange = "#e0af68" -- Git Status & Keybindings
-          colors.teal = "#73daca" -- Matching green for consistency
+          -- 2. SYNTAX SECTION (DEFAULTS)
+          -- The overrides for colors.blue, colors.green, etc. are REMOVED.
+          -- Your code will now use the standard, vibrant TokyoNight palette.
         end,
       })
       vim.cmd([[colorscheme tokyonight]])
