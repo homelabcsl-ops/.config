@@ -1,43 +1,65 @@
+-- File: ~/.config/nvim/lua/plugins/lualine.lua
 return {
   {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     opts = function()
       local colors = {
-        bg = "#161617", -- Matches your uploaded image background
-        bg_dark = "#0f0f10", -- Matches the darker sections of the dashboard
-        fg = "#c1c1c1", -- Soft off-white text
-        border = "#27272a", -- Structural border color
-        blue = "#7aa2f7", -- Tokyo Night blue for the mode indicator
-        grey = "#43444f", -- Muted separators
+        bg = "#161617",
+        bg_dark = "#0f0f10",
+        fg = "#c1c1c1",
+        terraform = "#5c4ee5", -- Terraform Purple
+        docker = "#0db9d7", -- Docker Blue
+        gray = "#787c99",
       }
+
+      -- Custom Function to detect IaC / Container context
+      local function devops_context()
+        local buf_name = vim.api.nvim_buf_get_name(0)
+        if buf_name:match("%.tf$") then
+          return "󱁢 IaC"
+        elseif buf_name:match("docker") or buf_name:match("Dockerfile") then
+          return " OPS"
+        end
+        return ""
+      end
 
       return {
         options = {
           theme = "tokyonight",
           globalstatus = true,
-          component_separators = { left = "|", right = "|" },
-          section_separators = { left = " ", right = " " }, -- Clean, no-arrow look
-          disabled_filetypes = { statusline = { "dashboard", "alpha", "snacks_dashboard" } },
+          component_separators = "|",
+          section_separators = "",
         },
         sections = {
-          lualine_a = { { "mode", color = { bg = colors.blue, fg = colors.bg_dark, gui = "bold" } } },
-          lualine_b = { { "branch", icon = "" }, "diff" },
+          lualine_a = { { "mode", gui = "bold" } },
+          lualine_b = { { "branch", icon = "" } },
           lualine_c = {
-            { "filetype", icon_only = true, padding = { left = 1, right = 0 } },
-            { "filename", path = 1, color = { fg = colors.fg } },
+            { "filetype", icon_only = true },
+            { "filename", path = 1 },
           },
           lualine_x = {
+            -- DevOps Context Indicators
+            {
+              devops_context,
+              color = function()
+                local name = vim.api.nvim_buf_get_name(0)
+                if name:match("%.tf$") then
+                  return { fg = colors.terraform }
+                end
+                return { fg = colors.docker }
+              end,
+            },
             {
               function()
                 return "DKS v1.6.0"
               end,
-              color = { fg = "#787c99" },
-            }, -- System Manual Version
+              color = { fg = colors.gray },
+            },
             "diagnostics",
           },
           lualine_y = { "progress" },
-          lualine_z = { { "location", color = { bg = colors.grey, fg = colors.fg } } },
+          lualine_z = { "location" },
         },
       }
     end,
