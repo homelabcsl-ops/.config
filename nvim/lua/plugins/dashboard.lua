@@ -1,3 +1,5 @@
+vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin:/usr/local/bin"
+
 -- Global state to store telemetry (Frictionless fallback)
 _G.DKS_TELEMETRY = {
   cpu = "0.00",
