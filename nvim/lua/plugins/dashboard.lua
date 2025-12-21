@@ -1,19 +1,19 @@
+-- 1. PREREQUISITE: Keep the PATH line from your image
 vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin:/usr/local/bin"
 
--- TOP: Keep the PATH fix from your image
-vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin:/usr/local/bin"
-
--- Safe Global Variable (Prevents Nil Call)
+-- 2. SAFE GLOBAL STATE: Prevents the nil crash in 'resolve'
 _G.DKS_STATUS = "󰻠 CPU: -- | 󱠔 K8S: Init"
 
 local function update_telemetry()
   local script = vim.fn.stdpath("config") .. "/scripts/telem.sh"
+
+  -- Only execute if the script exists and is executable
   if vim.fn.executable(script) == 1 then
     vim.fn.jobstart(script, {
       on_stdout = function(_, data)
         if data and data[1] ~= "" then
           _G.DKS_STATUS = data[1]
-          -- Safely refresh the UI
+          -- Safely refresh UI
           pcall(function()
             require("snacks").dashboard.update()
           end)
@@ -23,7 +23,7 @@ local function update_telemetry()
   end
 end
 
--- FIXED: Modern Neovim 0.10+ Timer API
+-- 3. FIX: Modern Neovim 0.10+ Timer API (Replaces image_5f1cd4.png)
 local uv = vim.uv or vim.loop
 local timer = uv.new_timer()
 if timer then
@@ -37,7 +37,7 @@ return {
       dashboard = {
         sections = {
           { section = "header" },
-          -- PASS STRING ONLY: This stops the line 488 crash
+          -- 4. THE FIX: Text now safely returns the verified string
           {
             section = "text",
             text = function()
