@@ -1,28 +1,30 @@
 vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin:/usr/local/bin"
 
--- FORCE INITIALIZATION: Use a simple string to prevent table-indexing nil errors
-_G.DKS_STATUS = "󰻠 CPU: -- | 󱠔 K8S: Local"
+-- File: ~/.config/nvim/lua/plugins/dashboard.lua
 
--- ASYNC UPDATER with Path Safety
-local function update_telemetry()
-  -- Explicitly set path for Mac mini binaries
-  local cmd = "PATH=$PATH:/opt/homebrew/bin:/usr/local/bin; " .. "sysctl -n vm.loadavg | awk '{print $2}'"
+-- 1. PRE-DEFINE THE TELEMETRY AS A GLOBAL STRING
+-- This ensures the value exists BEFORE the dashboard even looks for it
+_G.DKS_TELEM_STR = "󰻠 CPU: -- | 󱠔 K8S: Local"
+
+-- 2. BACKGROUND UPDATER (Non-blocking)
+local function refresh_telem()
+  -- Using a simpler command to ensure path safety on Mac
+  local cmd = "sysctl -n vm.loadavg | awk '{print $2}'"
 
   vim.fn.jobstart(cmd, {
     on_stdout = function(_, data)
       if data and data[1] ~= "" then
-        _G.DKS_STATUS = string.format("󰻠 CPU: %s | 󱠔 K8S: ACTIVE", vim.trim(data[1]))
+        _G.DKS_TELEM_STR = string.format("󰻠 CPU: %s | 󱠔 K8S: ACTIVE", vim.trim(data[1]))
       end
     end,
-    -- If the job fails, it just does nothing (no crash)
-    on_stderr = function() end,
   })
 end
 
--- Refresh every 10 seconds
-local timer = vim.loop.new_timer()
+-- Refresh every 10s using the modern uv API
+local uv = vim.uv or vim.loop
+local timer = uv.new_timer()
 if timer then
-  timer:start(0, 10000, vim.schedule_wrap(update_telemetry))
+  timer:start(0, 10000, vim.schedule_wrap(refresh_telem))
 end
 
 return {
@@ -35,16 +37,24 @@ return {
     🏛️  DEVOPS KNOWLEDGE SYSTEM v1.6.0
     STATUS: [PRODUCTION READY]
           ]],
-          -- Your keys remain the same
+          -- Ensure keys are in 'preset.keys' to avoid recent API errors
+          keys = {
+            {
+              icon = "󱓞 ",
+              key = "n",
+              desc = "New Note",
+              action = ":lua Snacks.dashboard.pick('files', {cwd='~/obsidian/00-Inbox'})",
+            },
+            { icon = " ", key = "q", desc = "Ship & Exit", action = ":qa" },
+          },
         },
         sections = {
           { section = "header" },
+          -- SOLUTION: PASS THE STRING DIRECTLY (No function call here)
+          -- This prevents the 'resolve' nil crash on line 488
           {
             section = "text",
-            -- DEFENSIVE CALL: Uses the global string directly
-            text = function()
-              return _G.DKS_STATUS or "󰻠 CPU: --"
-            end,
+            text = _G.DKS_TELEM_STR,
             hl = "SnacksDashboardDesc",
             padding = 1,
           },
