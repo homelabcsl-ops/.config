@@ -1,12 +1,24 @@
 -- File: ~/.config/nvim/lua/plugins/dashboard.lua
 
 local function get_system_stats()
-  -- Pulls 1-minute CPU load average and used memory (Mac-specific)
-  local handle = io.popen("sysctl -n vm.loadavg | awk '{print $2}' && free -m 2>/dev/null | awk '/Mem:/ {print $3}'")
+  -- Mac-compatible Telemetry: sysctl for CPU, vm_stat for Memory
+  local cmd = "sysctl -n vm.loadavg | awk '{print $2}' && "
+    .. "vm_stat | awk '/Pages free/ {free=$3} /Pages active/ {active=$3} END {printf \"%d\", (active+free)*4096/1024/1024}'"
+
+  local handle = io.popen(cmd)
+  -- Safety Check for the Handle (Fixes your nil error)
+  if not handle then
+    return "󰻠 CPU: Error | 󰍛 MEM: Error"
+  end
+
   local result = handle:read("*a")
   handle:close()
 
-  local stats = vim.split(result, "\n")
+  if not result or result == "" then
+    return "󰻠 CPU: -- | 󰍛 MEM: --"
+  end
+
+  local stats = vim.split(vim.trim(result), "\n")
   local cpu = stats[1] or "0.00"
   local mem = stats[2] or "N/A"
 
