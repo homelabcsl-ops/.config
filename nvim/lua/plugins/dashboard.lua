@@ -1,28 +1,27 @@
 --1. THE TELEMETRY ENGINE (Mac-Specific)
 local function get_system_stats()
-  -- Using native macOS commands as per your hardware setup
-  local cmd = "sysctl -n vm.loadavg | awk '{print $2}' && "
-    .. "vm_stat | awk '/Pages free/ {free=$3} /Pages active/ {active=$3} END {printf \"%d\", (active+free)*4096/1024/1024}'"
-
-  local handle = io.popen(cmd)
-
-  -- Essential Nil Check to prevent the "attempt to call a nil value" crash
-  if handle == nil then
-    return "󰻠 CPU: Error | 󰍛 MEM: Error"
+  -- 1. Fetch CPU Load (Native Mac sysctl)
+  local cpu_handle = io.popen("sysctl -n vm.loadavg | awk '{print $2}'")
+  local cpu = "0.00"
+  if cpu_handle then
+    cpu = vim.trim(cpu_handle:read("*a") or "0.00")
+    cpu_handle:close()
   end
 
-  local result = handle:read("*a")
-  handle:close()
-
-  if not result or result == "" then
-    return "󰻠 CPU: -- | 󰍛 MEM: --"
+  -- 2. Fetch Memory (Simplified vm_stat for Mac)
+  -- We avoid complex piping here to ensure it never returns nil
+  local mem_handle = io.popen("vm_stat | awk '/Pages free/ {print $3}' | sed 's/\\.//'")
+  local mem = "Active"
+  if mem_handle then
+    local pages = mem_handle:read("*a")
+    mem_handle:close()
+    if pages and pages ~= "" then
+      -- Convert pages to approximate MB (Page size is 4096)
+      mem = math.floor((tonumber(pages) * 4096) / 1024 / 1024) .. "MB Free"
+    end
   end
 
-  local stats = vim.split(vim.trim(result), "\n")
-  local cpu = stats[1] or "0.00"
-  local mem = stats[2] or "N/A"
-
-  return string.format("󰻠 CPU: %s | 󰍛 MEM: %sMB", cpu, mem)
+  return string.format("󰻠 CPU: %s | 󰍛 MEM: %s", cpu, mem)
 end
 
 -- 2. THE DASHBOARD CONFIGURATION
