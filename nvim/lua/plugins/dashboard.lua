@@ -1,13 +1,13 @@
--- File: ~/.config/nvim/lua/plugins/dashboard.lua
-
+--1. THE TELEMETRY ENGINE (Mac-Specific)
 local function get_system_stats()
-  -- Mac-compatible Telemetry: sysctl for CPU, vm_stat for Memory
+  -- Using native macOS commands as per your hardware setup
   local cmd = "sysctl -n vm.loadavg | awk '{print $2}' && "
     .. "vm_stat | awk '/Pages free/ {free=$3} /Pages active/ {active=$3} END {printf \"%d\", (active+free)*4096/1024/1024}'"
 
   local handle = io.popen(cmd)
-  -- Safety Check for the Handle (Fixes your nil error)
-  if not handle then
+
+  -- Essential Nil Check to prevent the "attempt to call a nil value" crash
+  if handle == nil then
     return "󰻠 CPU: Error | 󰍛 MEM: Error"
   end
 
@@ -25,6 +25,7 @@ local function get_system_stats()
   return string.format("󰻠 CPU: %s | 󰍛 MEM: %sMB", cpu, mem)
 end
 
+-- 2. THE DASHBOARD CONFIGURATION
 return {
   {
     "folke/snacks.nvim",
@@ -35,10 +36,44 @@ return {
     🏛️  DEVOPS KNOWLEDGE SYSTEM v1.6.0
     STATUS: [PRODUCTION READY]
           ]],
+          keys = {
+            -- Knowledge Section (The Brain)
+            {
+              icon = "󱓞 ",
+              key = "n",
+              desc = "New Note",
+              action = ":lua Snacks.dashboard.pick('files', {cwd='~/obsidian/00-Inbox'})",
+            },
+            {
+              icon = " ",
+              key = "o",
+              desc = "Search Vault",
+              action = ":lua Snacks.dashboard.pick('live_grep', {cwd='~/obsidian'})",
+            },
+
+            -- Engineering Section (The Builder)
+            { icon = "󰙅 ", key = "p", desc = "Active Projects", action = ":lua Snacks.dashboard.pick('projects')" },
+            { icon = " ", key = "g", desc = "Git Workflow", action = ":LazyGit" },
+
+            -- Operations Section (The Ship)
+            {
+              icon = "󱠔 ",
+              key = "k",
+              desc = "K8s Manifests",
+              action = ":tcd ~/obsidian/40-Orchestration | Telescope find_files",
+            },
+            {
+              icon = "󱁢 ",
+              key = "t",
+              desc = "Terraform / IaC",
+              action = ":tcd ~/obsidian/50-IaC-Config | Telescope find_files",
+            },
+            { icon = " ", key = "q", desc = "Ship & Exit", action = ":qa" },
+          },
         },
         sections = {
           { section = "header" },
-          -- The Health Telemetry Line
+          -- LINKING THE FUNCTION (Prevents it from being greyed out)
           {
             section = "text",
             text = function()
