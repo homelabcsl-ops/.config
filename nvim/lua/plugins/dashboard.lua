@@ -1,16 +1,34 @@
--- 1. DEFINE A SAFE FALLBACK
-local sys_telemetry = "󰻠 CPU: -- | 󰍛 MEM: --"
+-- Global state to store telemetry (Frictionless fallback)
+_G.DKS_TELEMETRY = {
+  cpu = "0.00",
+  mem = "Init...",
+  k8s = "Pending",
+}
 
--- 2. SILENT BACKGROUND UPDATE
--- This avoids the io.popen crash by running only if the system is ready
-local ok, handle = pcall(io.popen, "sysctl -n vm.loadavg | awk '{print $2}'")
-if ok and handle then
-  local cpu = handle:read("*a")
-  handle:close()
-  if cpu and cpu ~= "" then
-    sys_telemetry = string.format("󰻠 CPU: %s | 󰍛 DKS: LIVE", vim.trim(cpu))
-  end
+-- ASYNC UPDATER: Runs in the background every 10s
+local function update_devops_telemetry()
+  -- CPU Load
+  vim.fn.jobstart("sysctl -n vm.loadavg | awk '{print $2}'", {
+    on_stdout = function(_, data)
+      if data[1] ~= "" then
+        _G.DKS_TELEMETRY.cpu = vim.trim(data[1])
+      end
+    end,
+  })
+
+  -- K8s Context (Crucial for DevOps Professional)
+  vim.fn.jobstart("kubectl config current-context", {
+    on_stdout = function(_, data)
+      if data[1] ~= "" then
+        _G.DKS_TELEMETRY.k8s = vim.trim(data[1])
+      end
+    end,
+  })
 end
+
+-- Start the background loop
+local timer = vim.loop.new_timer()
+timer:start(0, 10000, vim.schedule_wrap(update_devops_telemetry))
 
 return {
   {
@@ -22,18 +40,15 @@ return {
     🏛️  DEVOPS KNOWLEDGE SYSTEM v1.6.0
     STATUS: [PRODUCTION READY]
           ]],
-          keys = {
-            -- Your standard DKS keys here...
-            { icon = " ", key = "q", desc = "Ship & Exit", action = ":qa" },
-          },
         },
         sections = {
           { section = "header" },
-          -- 3. THE FAILSAFE DISPLAY
-          -- We pass the pre-verified string, so it can NEVER be nil
+          -- DYNAMIC TELEMETRY LINE: Safe, fast, and never nil.
           {
             section = "text",
-            text = sys_telemetry,
+            text = function()
+              return string.format("󰻠 CPU: %s | 󱠔 K8S: %s", _G.DKS_TELEMETRY.cpu, _G.DKS_TELEMETRY.k8s)
+            end,
             hl = "SnacksDashboardDesc",
             padding = 1,
           },
