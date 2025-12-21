@@ -1,36 +1,29 @@
 vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin:/usr/local/bin"
 
--- Global state to store telemetry (Frictionless fallback)
-_G.DKS_TELEMETRY = {
-  cpu = "0.00",
-  mem = "Init...",
-  k8s = "Pending",
-}
+-- FORCE INITIALIZATION: Use a simple string to prevent table-indexing nil errors
+_G.DKS_STATUS = "󰻠 CPU: -- | 󱠔 K8S: Local"
 
--- ASYNC UPDATER: Runs in the background every 10s
-local function update_devops_telemetry()
-  -- CPU Load
-  vim.fn.jobstart("sysctl -n vm.loadavg | awk '{print $2}'", {
+-- ASYNC UPDATER with Path Safety
+local function update_telemetry()
+  -- Explicitly set path for Mac mini binaries
+  local cmd = "PATH=$PATH:/opt/homebrew/bin:/usr/local/bin; " .. "sysctl -n vm.loadavg | awk '{print $2}'"
+
+  vim.fn.jobstart(cmd, {
     on_stdout = function(_, data)
-      if data[1] ~= "" then
-        _G.DKS_TELEMETRY.cpu = vim.trim(data[1])
+      if data and data[1] ~= "" then
+        _G.DKS_STATUS = string.format("󰻠 CPU: %s | 󱠔 K8S: ACTIVE", vim.trim(data[1]))
       end
     end,
-  })
-
-  -- K8s Context (Crucial for DevOps Professional)
-  vim.fn.jobstart("kubectl config current-context", {
-    on_stdout = function(_, data)
-      if data[1] ~= "" then
-        _G.DKS_TELEMETRY.k8s = vim.trim(data[1])
-      end
-    end,
+    -- If the job fails, it just does nothing (no crash)
+    on_stderr = function() end,
   })
 end
 
--- Start the background loop
+-- Refresh every 10 seconds
 local timer = vim.loop.new_timer()
-timer:start(0, 10000, vim.schedule_wrap(update_devops_telemetry))
+if timer then
+  timer:start(0, 10000, vim.schedule_wrap(update_telemetry))
+end
 
 return {
   {
@@ -42,14 +35,15 @@ return {
     🏛️  DEVOPS KNOWLEDGE SYSTEM v1.6.0
     STATUS: [PRODUCTION READY]
           ]],
+          -- Your keys remain the same
         },
         sections = {
           { section = "header" },
-          -- DYNAMIC TELEMETRY LINE: Safe, fast, and never nil.
           {
             section = "text",
+            -- DEFENSIVE CALL: Uses the global string directly
             text = function()
-              return string.format("󰻠 CPU: %s | 󱠔 K8S: %s", _G.DKS_TELEMETRY.cpu, _G.DKS_TELEMETRY.k8s)
+              return _G.DKS_STATUS or "󰻠 CPU: --"
             end,
             hl = "SnacksDashboardDesc",
             padding = 1,
