@@ -14,7 +14,7 @@ return {
           -- Use a Terminal section to run your v1.6.0 Telemetry script
           {
             section = "terminal",
-            cmd = "bash Users/homelab/.config/nvim/telem.sh", -- Update this path
+            cmd = "bash Users/homelab/.config/nvim/scripts/telem.sh", -- Update this path
             height = 1,
             padding = 1,
             ttl = 5, -- Refresh every 5 seconds
