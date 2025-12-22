@@ -1,7 +1,9 @@
 local function get_system_stats()
   -- Pulls 1-minute CPU load average and used memory (Mac-specific)
   -- Added a safety check for the handle
-  local handle = io.popen("sysctl -n vm.loadavg | awk '{print $2}' && free -m 2>/dev/null | awk '/Mem:/ {print $3}'")
+  local handle = io.popen(
+    "sysctl -n vm.loadavg | awk '{print $2}' && vm_stat | grep 'Pages free' | awk '{print $3}' | sed 's/\\.//'"
+  )
   if not handle then
     return "󰻠 CPU: N/A | 󰍛 MEM: N/A"
   end
