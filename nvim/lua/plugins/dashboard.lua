@@ -1,33 +1,20 @@
--- 1. PREREQUISITE: Keep the PATH line from your image
-vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin:/usr/local/bin"
-
--- 2. SAFE GLOBAL STATE: Prevents the nil crash in 'resolve'
-_G.DKS_STATUS = "󰻠 CPU: -- | 󱠔 K8S: Init"
-
-local function update_telemetry()
-  local script = vim.fn.stdpath("config") .. "/scripts/telem.sh"
-
-  -- Only execute if the script exists and is executable
-  if vim.fn.executable(script) == 1 then
-    vim.fn.jobstart(script, {
-      on_stdout = function(_, data)
-        if data and data[1] ~= "" then
-          _G.DKS_STATUS = data[1]
-          -- Safely refresh UI
-          pcall(function()
-            require("snacks").dashboard.update()
-          end)
-        end
-      end,
-    })
+local function get_system_stats()
+  -- Pulls 1-minute CPU load average and used memory (Mac-specific)
+  -- Added a safety check for the handle
+  local handle = io.popen("sysctl -n vm.loadavg | awk '{print $2}' && free -m 2>/dev/null | awk '/Mem:/ {print $3}'")
+  if not handle then
+    return "󰻠 CPU: N/A | 󰍛 MEM: N/A"
   end
-end
 
--- 3. FIX: Modern Neovim 0.10+ Timer API (Replaces image_5f1cd4.png)
-local uv = vim.uv or vim.loop
-local timer = uv.new_timer()
-if timer then
-  timer:start(0, 10000, vim.schedule_wrap(update_telemetry))
+  local result = handle:read("*a")
+  handle:close()
+
+  local stats = vim.split(result, "\n")
+  local cpu = (stats[1] and stats[1] ~= "") and stats[1] or "0.00"
+  -- Mac doesn't have 'free -m', so we provide a fallback for local Mac usage vs remote Linux
+  local mem = (stats[2] and stats[2] ~= "") and stats[2] .. "MB" or "Active"
+
+  return string.format("󰻠 CPU: %s | 󰍛 MEM: %s", cpu, mem)
 end
 
 return {
@@ -35,16 +22,21 @@ return {
     "folke/snacks.nvim",
     opts = {
       dashboard = {
+        preset = {
+          header = [[
+    🏛️  DEVOPS KNOWLEDGE SYSTEM v1.6.0
+    STATUS: [PRODUCTION READY]
+          ]],
+        },
         sections = {
           { section = "header" },
-          -- 4. THE FIX: Text now safely returns the verified string
+          -- FIXED: Using the standard text section format that Snacks expects
           {
             section = "text",
-            text = function()
-              return _G.DKS_STATUS
-            end,
-            hl = "SnacksDashboardDesc",
             padding = 1,
+            text = {
+              { get_system_stats, hl = "SnacksDashboardDesc" },
+            },
           },
           { section = "keys", gap = 0, padding = 1 },
           { section = "startup" },
