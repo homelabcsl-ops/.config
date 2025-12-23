@@ -109,3 +109,34 @@ return {
     opts = {},
   },
 }
+
+-- 6. INFRASTRUCTURE PRE-FLIGHT (Validation)
+  {
+    "folke/snacks.nvim",
+    keys = {
+      {
+        "<leader>tv",
+        function()
+          local file = vim.fn.expand("%:t")
+          local ext = vim.fn.expand("%:e")
+          local cmd = ""
+
+          if ext == "tf" then
+            cmd = "terraform validate"
+          elseif ext == "yaml" or ext == "yml" then
+            -- Checks if it's an Ansible playbook/task
+            cmd = "ansible-lint " .. file .. " || echo 'Not an Ansible file'"
+          else
+            vim.notify("No validator for ." .. ext, vim.log.levels.WARN)
+            return
+          end
+
+          Snacks.terminal.open(cmd, {
+            win = { position = "float" },
+            title = " 🏗️ IaC Pre-Flight: " .. file,
+          })
+        end,
+        desc = "Validate IaC (Terraform/Ansible)",
+      },
+    },
+  },
