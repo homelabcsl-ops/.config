@@ -17,7 +17,7 @@ return {
             cmd = "bash ~/.config/nvim/scripts/telem.sh", -- Update this path
             height = 1,
             padding = 1,
-            ttl = 5, -- Refresh every 5 seconds
+            ttl = 60, -- Refresh every 5 seconds
             hl = "SnacksDashboardDesc",
           },
           { section = "keys", gap = 0, padding = 1 },
