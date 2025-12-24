@@ -12,7 +12,7 @@ return {
   -- 2. INTELLIGENT SCHEMAS (Kubernetes / GitHub Actions / Ansible)
   {
     "b0o/SchemaStore.nvim",
-    version = false, -- last release is very old
+    version = false,
   },
 
   -- 3. DEBUGGING (DAP)
@@ -27,8 +27,6 @@ return {
       local dap = require("dap")
       local ui = require("dapui")
       ui.setup()
-
-      -- Open debugger UI automatically
       dap.listeners.before.attach.dapui_config = function()
         ui.open()
       end
@@ -60,7 +58,7 @@ return {
     },
   },
 
-  -- 4. TESTING
+  -- 4. TESTING (Corrected Table Structure)
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -73,6 +71,9 @@ return {
     },
     config = function()
       require("neotest").setup({
+        -- Satisfies requirements from images
+        log_level = vim.log.levels.WARN,
+        consumers = {},
         adapters = {
           require("neotest-python"),
           require("neotest-go"),
@@ -108,7 +109,7 @@ return {
     opts = {},
   },
 
-  -- 6. INFRASTRUCTURE PRE-FLIGHT (Validation)
+  -- 6. INFRASTRUCTURE PRE-FLIGHT (Completed Logic)
   {
     "folke/snacks.nvim",
     keys = {
@@ -119,7 +120,6 @@ return {
           local ext = vim.fn.expand("%:e")
           local cmd = ""
 
-          -- Context-aware validator selection
           if ext == "tf" then
             cmd = "terraform validate"
           elseif ext == "yaml" or ext == "yml" then
@@ -129,8 +129,7 @@ return {
             return
           end
 
-          -- Floating terminal for non-blocking validation
-          Snacks.terminal.open(cmd, {
+          require("snacks").terminal.open(cmd, {
             win = { position = "float", border = "rounded" },
             title = " 🏗️ IaC Pre-Flight: " .. file,
           })
