@@ -68,7 +68,6 @@ return {
       "nvim-lua/plenary.nvim",
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
-      -- Adapters (Add more as needed)
       "nvim-neotest/neotest-python",
       "nvim-neotest/neotest-go",
     },
@@ -108,9 +107,8 @@ return {
     },
     opts = {},
   },
-}
 
--- 6. INFRASTRUCTURE PRE-FLIGHT (Validation)
+  -- 6. INFRASTRUCTURE PRE-FLIGHT (Validation)
   {
     "folke/snacks.nvim",
     keys = {
@@ -121,18 +119,19 @@ return {
           local ext = vim.fn.expand("%:e")
           local cmd = ""
 
+          -- Context-aware validator selection
           if ext == "tf" then
             cmd = "terraform validate"
           elseif ext == "yaml" or ext == "yml" then
-            -- Checks if it's an Ansible playbook/task
-            cmd = "ansible-lint " .. file .. " || echo 'Not an Ansible file'"
+            cmd = "ansible-lint " .. file .. " || echo 'YAML check: ansible-lint not required'"
           else
             vim.notify("No validator for ." .. ext, vim.log.levels.WARN)
             return
           end
 
+          -- Floating terminal for non-blocking validation
           Snacks.terminal.open(cmd, {
-            win = { position = "float" },
+            win = { position = "float", border = "rounded" },
             title = " 🏗️ IaC Pre-Flight: " .. file,
           })
         end,
@@ -140,3 +139,4 @@ return {
       },
     },
   },
+}
