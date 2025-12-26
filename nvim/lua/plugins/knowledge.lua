@@ -102,7 +102,6 @@ return {
         },
       },
     },
-
     -- Config function to apply the LuaLS Fix dynamically if needed
     config = function(_, opts)
       require("obsidian").setup(opts)
