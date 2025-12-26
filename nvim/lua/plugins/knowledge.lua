@@ -2,12 +2,12 @@
 return {
   {
     "epwalsh/obsidian.nvim",
-    version = "*", -- recommended, use latest release instead of latest commit
+    version = "*",
     lazy = true,
     ft = "markdown",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "hrsh7th/nvim-cmp",
+      -- "hrsh7th/nvim-cmp", -- Optional: Commented out to prevent dependency errors
       "nvim-telescope/telescope.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -30,20 +30,18 @@ return {
         },
       },
 
-      -- Daily Notes Configuration
       daily_notes = {
         folder = "00-Inbox/Daily",
         date_format = "%Y-%m-%d",
         template = "daily-note.md",
       },
 
-      -- Completion settings
+      -- FIX APPLIED HERE
       completion = {
-        nvim_cmp = true,
+        nvim_cmp = false, -- Disabled to fix startup error
         min_chars = 2,
       },
 
-      -- Interface mappings (inside the Obsidian buffer)
       mappings = {
         ["gf"] = {
           action = function()
@@ -59,7 +57,6 @@ return {
         },
       },
 
-      -- Templates Configuration with THE FIX
       templates = {
         subdir = "Templates",
         date_format = "%Y-%m-%d",
@@ -72,17 +69,12 @@ return {
         },
       },
 
-      -- Attach logic to handle specific template paths safely
-      ---@param client obsidian.Client
       note_id_func = function(spec)
-        -- Custom ID generation (Time-based or Title-based)
         local path = spec.dir / tostring(spec.title)
         return path:name()
       end,
 
-      -- Frontmatter customization
       note_frontmatter_func = function(note)
-        -- Add the schema version to all new notes
         local out = { id = note.id, aliases = note.aliases, tags = note.tags }
         if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
           for k, v in pairs(note.metadata) do
@@ -92,7 +84,6 @@ return {
         return out
       end,
 
-      -- Optional: Custom UI configuration
       ui = {
         enable = true,
         update_debounce = 200,
@@ -102,12 +93,9 @@ return {
         },
       },
     },
-    -- Config function to apply the LuaLS Fix dynamically if needed
     config = function(_, opts)
       require("obsidian").setup(opts)
-
-      -- UNIVERSAL FIX: Example of how to safely reference the subdir if accessing client manually
-      -- This block is just for reference/safety in case you extend the config later
+      -- UNIVERSAL FIX: Safety check for templates (Keep this!)
       local client = require("obsidian").get_client()
       if client then
         ---@diagnostic disable-next-line: undefined-field
