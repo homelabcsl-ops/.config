@@ -58,7 +58,7 @@ return {
     },
   },
 
-  -- 4. TESTING (Corrected Table Structure)
+  -- 4. TESTING (The Final Boss: Schema-Complete Version)
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -71,9 +71,28 @@ return {
     },
     config = function()
       require("neotest").setup({
-        -- Satisfies requirements from images
+        -- Essential Global State
         log_level = vim.log.levels.WARN,
+
+        -- Fully Defined Shells (Satisfies top-level schema requirements)
+        strategies = {},
+        run = {},
         consumers = {},
+        icons = { enabled = true },
+        highlights = {},
+
+        -- Required Nested Fields (Satisfies nested table validation)
+        summary = { enabled = true, animated = true },
+        output = { enabled = true, open_on_run = true },
+        output_panel = { enabled = true },
+
+        floating = {
+          border = "rounded",
+          max_height = 0.6,
+          max_width = 0.6,
+          options = {},
+        },
+        -- Infrastructure Adapters
         adapters = {
           require("neotest-python"),
           require("neotest-go"),
@@ -109,7 +128,7 @@ return {
     opts = {},
   },
 
-  -- 6. INFRASTRUCTURE PRE-FLIGHT (Completed Logic)
+  -- 6. INFRASTRUCTURE PRE-FLIGHT (Validation)
   {
     "folke/snacks.nvim",
     keys = {
@@ -119,7 +138,6 @@ return {
           local file = vim.fn.expand("%:t")
           local ext = vim.fn.expand("%:e")
           local cmd = ""
-
           if ext == "tf" then
             cmd = "terraform validate"
           elseif ext == "yaml" or ext == "yml" then
@@ -128,7 +146,6 @@ return {
             vim.notify("No validator for ." .. ext, vim.log.levels.WARN)
             return
           end
-
           require("snacks").terminal.open(cmd, {
             win = { position = "float", border = "rounded" },
             title = " 🏗️ IaC Pre-Flight: " .. file,
