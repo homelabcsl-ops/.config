@@ -1,85 +1,69 @@
 return {
   {
-    "rebelot/kanagawa.nvim",
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     config = function()
-      local is_dragon = true -- Default to the darker "Dragon" theme
+      local is_deep_ops = true -- Default to "Mocha" (Deep Ops)
 
-      local function apply_theme(mode)
-        require("kanagawa").setup({
-          compile = true, -- Enable compiling for speed
-          commentStyle = { italic = true },
-          functionStyle = {},
-          keywordStyle = { italic = true },
-          statementStyle = { bold = true },
-          typeStyle = {},
-          transparent = false,
-          dimInactive = false,
-          terminalColors = true,
+      local function apply_theme(flavor)
+        require("catppuccin").setup({
+          flavour = flavor, -- "mocha" or "frappe"
+          transparent_background = false,
+          term_colors = true,
 
-          -- Dynamic Color Overrides based on Mode
-          colors = {
-            theme = {
-              all = {
-                ui = {
-                  bg_gutter = "none",
-                },
-              },
+          -- "Muted" Integrations
+          integrations = {
+            cmp = true,
+            gitsigns = true,
+            nvimtree = true,
+            treesitter = true,
+            telescope = true,
+            mason = true,
+            -- Context awareness for your bottom bar
+            lualine = {
+              enabled = true,
+              options = { theme = "catppuccin" },
             },
           },
 
-          -- Theme Logic
-          overrides = function(colors)
-            local theme = colors.theme
-            if mode == "dragon" then
-              -- MISSION CONTROL: VOID MODE (Deepest Black)
-              return {
-                NormalFloat = { bg = "#0d0c0c" },
-                FloatBorder = { bg = "#0d0c0c", fg = "#333333" },
-                Normal = { bg = "#0d0c0c" }, -- Pitch black background
-                TelescopeTitle = { fg = theme.ui.special, bold = true },
-                TelescopePromptNormal = { bg = "#121212" },
-                TelescopeResultsNormal = { fg = theme.ui.fg_dim, bg = "#0d0c0c" },
+          -- Custom Highlights to ensure "Distinct but Muted"
+          custom_highlights = function(colors)
+            return {
+              -- Obsidian / Markdown Hierarchy
+              ["@text.title.1.markdown"] = { fg = colors.peach, style = { "bold" } }, -- Distinct Peach
+              ["@text.title.2.markdown"] = { fg = colors.mauve, style = { "bold" } }, -- Distinct Mauve
+              ["@text.uri.markdown"] = { fg = colors.rosewater, style = { "underline" } },
 
-                -- Obsidian/Markdown Specifics (Stealth)
-                ["@text.title.1.markdown"] = { fg = "#E6C384", bold = true }, -- Gold
-                ["@text.title.2.markdown"] = { fg = "#7AA89F", bold = true }, -- Teal
-                ["@text.uri.markdown"] = { fg = "#7FB4CA", underline = true }, -- Muted Blue
-              }
-            else
-              -- MISSION CONTROL: PAPER MODE (Standard Kanagawa Wave)
-              return {
-                NormalFloat = { bg = "none" },
-                FloatBorder = { bg = "none" },
-                TelescopeTitle = { fg = theme.ui.special, bold = true },
-                TelescopePromptNormal = { bg = theme.ui.bg_p1 },
-                TelescopeResultsNormal = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m1 },
-              }
-            end
+              -- Comments (Make them truly muted)
+              Comment = { fg = colors.overlay0, style = { "italic" } },
+
+              -- Dashboard Headers
+              SnacksDashboardHeader = { fg = colors.blue },
+            }
           end,
         })
 
-        -- Load the specific palette flavor
-        vim.cmd("colorscheme kanagawa-" .. mode)
+        vim.cmd.colorscheme("catppuccin")
       end
 
       -- Toggle Logic
       function ToggleMissionControlTheme()
-        if is_dragon then
-          apply_theme("wave") -- Switch to softer "Paper" mode
-          print("📜 Mission Control: Ink Mode (Wave)")
+        if is_deep_ops then
+          apply_theme("frappe") -- Switch to softer/lighter "Reading" mode
+          print("🍦 Mission Control: Soft Mode (Frappe)")
         else
-          apply_theme("dragon") -- Switch to hard "Void" mode
-          print("🐉 Mission Control: Void Mode (Dragon)")
+          apply_theme("mocha") -- Switch to deep "Ops" mode
+          print("☕ Mission Control: Deep Ops (Mocha)")
         end
-        is_dragon = not is_dragon
+        is_deep_ops = not is_deep_ops
       end
 
-      -- Initialize with Dragon (Void) Mode
-      apply_theme("dragon")
+      -- Initialize with Mocha (Deep Ops)
+      apply_theme("mocha")
 
       -- Keybinding
-      vim.keymap.set("n", "<leader>tm", ToggleMissionControlTheme, { desc = "Toggle Ink/Void Theme" })
+      vim.keymap.set("n", "<leader>tm", ToggleMissionControlTheme, { desc = "Toggle Deep/Soft Theme" })
     end,
   },
 }
