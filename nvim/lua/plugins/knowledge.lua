@@ -11,31 +11,50 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     keys = {
-      -- FIX 2: Smart Launch for New Notes (Prevents "Buffer not modifiable" error)
+      -- 1. Smart Launch (Existing Fix)
       {
         "<leader>on",
         function()
-          -- 1. Check if the current buffer is locked (Dashboard, Telemetry, etc.)
           local is_locked = not vim.bo.modifiable or vim.bo.readonly
-
           if is_locked then
-            -- Escape the dashboard
             vim.cmd("enew")
-
-            -- CRITICAL FIX: Force the new buffer to be writable.
-            -- Dashboards often set window-local options that 'stick' to the new buffer.
-            vim.bo.modifiable = true -- Force write access
-            vim.bo.readonly = false -- Disable read-only mode
-            vim.bo.buftype = "" -- Ensure it is treated as a standard file
+            vim.bo.modifiable = true
+            vim.bo.readonly = false
+            vim.bo.buftype = ""
           end
-
-          -- 2. Run ObsidianNew in the clean, writable buffer
           vim.schedule(function()
             vim.cmd("ObsidianNew")
           end)
         end,
         desc = "New Note (Knowledge)",
       },
+
+      -- 2. NEW: Visual Workspace Switcher (The "Loud" Switch)
+      {
+        "<leader>ow",
+        function()
+          -- Define your workspaces here to match opts (for the picker)
+          local workspaces = { "devops", "personal" }
+
+          vim.ui.select(workspaces, { prompt = "Select Workspace" }, function(choice)
+            if not choice then
+              return
+            end
+            -- A. Switch Obsidian Logic
+            vim.cmd("ObsidianWorkspace " .. choice)
+
+            -- B. Switch Neovim Directory (The Visual Feedback)
+            local vault_path = vim.fn.expand("~/obsidian/" .. choice)
+            vim.cmd("cd " .. vault_path)
+
+            -- C. Notify
+            vim.notify("Moved to Vault: " .. choice .. "\nPath: " .. vault_path, vim.log.levels.INFO)
+          end)
+        end,
+        desc = "Switch Workspace",
+      },
+
+      -- 3. Standard Keys
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
@@ -45,6 +64,7 @@ return {
       { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
       { "<leader>od", "<cmd>ObsidianTOC<cr>", desc = "Table of Contents" },
     },
+
     opts = {
       -- 1. WORKSPACES (Strict Array)
       workspaces = {
