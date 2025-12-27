@@ -11,7 +11,18 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     keys = {
-      { "<leader>on", "<cmd>ObsidianNew<cr>", desc = "New Note (Knowledge)" },
+      -- FIX 2: Smart Launch for New Notes (Prevents "Buffer not modifiable" error)
+      {
+        "<leader>on",
+        function()
+          -- Check if current buffer is read-only or not modifiable (like Dashboard)
+          if not vim.bo.modifiable or vim.bo.readonly then
+            vim.cmd("enew") -- Open a new empty buffer first
+          end
+          vim.cmd("ObsidianNew") -- Then create the note
+        end,
+        desc = "New Note (Knowledge)",
+      },
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
@@ -32,7 +43,7 @@ return {
           name = "personal",
           path = "~/obsidian/personal",
         },
-      }, -- <<< FIXED: Closing brace added here to separate workspaces from global settings
+      }, -- FIX 1: Correctly closed brace here
 
       -- 2. GLOBAL SETTINGS (Siblings to workspaces)
       daily_notes = {
