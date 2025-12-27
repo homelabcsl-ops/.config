@@ -15,11 +15,19 @@ return {
       {
         "<leader>on",
         function()
-          -- Check if current buffer is read-only or not modifiable (like Dashboard)
-          if not vim.bo.modifiable or vim.bo.readonly then
-            vim.cmd("enew") -- Open a new empty buffer first
+          -- 1. Check if the current buffer is locked (Dashboard, Telemetry, etc.)
+          local is_locked = not vim.bo.modifiable or vim.bo.readonly
+
+          -- 2. If locked, immediately switch to a fresh, writable buffer
+          if is_locked then
+            vim.cmd("enew")
           end
-          vim.cmd("ObsidianNew") -- Then create the note
+
+          -- 3. CRITICAL FIX: Schedule the creation command for the NEXT event loop.
+          -- This forces Neovim to finish switching buffers before Obsidian tries to write.
+          vim.schedule(function()
+            vim.cmd("ObsidianNew")
+          end)
         end,
         desc = "New Note (Knowledge)",
       },
