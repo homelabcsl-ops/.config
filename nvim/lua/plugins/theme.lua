@@ -1,69 +1,98 @@
 return {
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "folke/tokyonight.nvim",
     priority = 1000,
     config = function()
-      local is_deep_ops = true -- Default to "Mocha" (Deep Ops)
+      local is_matte = true -- Default to "Matte" (Charcoal) mode
 
-      local function apply_theme(flavor)
-        require("catppuccin").setup({
-          flavour = flavor, -- "mocha" or "frappe"
-          transparent_background = false,
-          term_colors = true,
+      -- Define the Custom Industrial Palette
+      local industrial = {
+        -- Charcoal & Metal Backgrounds
+        charcoal = "#1b1b1b", -- Matte Background
+        deep_metal = "#101010", -- Polished Background
+        metallic_grey = "#2a2a2e", -- Sidebar / Floats
+        lighter_grey = "#3b3b3e", -- Highlights / Selection
 
-          -- "Muted" Integrations
-          integrations = {
-            cmp = true,
-            gitsigns = true,
-            nvimtree = true,
-            treesitter = true,
-            telescope = true,
-            mason = true,
-            -- Context awareness for your bottom bar
-            lualine = {
-              enabled = true,
-              options = { theme = "catppuccin" },
-            },
+        -- The Accent
+        neon_teal = "#73daca", -- The primary accent color
+        muted_teal = "#2ac3de", -- Secondary accent
+      }
+
+      local function apply_theme(mode)
+        require("tokyonight").setup({
+          style = "moon", -- "moon" is naturally greyer than "storm" or "night"
+          transparent = false,
+          styles = {
+            sidebars = "dark",
+            floats = "dark",
           },
 
-          -- Custom Highlights to ensure "Distinct but Muted"
-          custom_highlights = function(colors)
-            return {
-              -- Obsidian / Markdown Hierarchy
-              ["@text.title.1.markdown"] = { fg = colors.peach, style = { "bold" } }, -- Distinct Peach
-              ["@text.title.2.markdown"] = { fg = colors.mauve, style = { "bold" } }, -- Distinct Mauve
-              ["@text.uri.markdown"] = { fg = colors.rosewater, style = { "underline" } },
+          -- 1. OVERRIDE THE COLORS (The "Charcoal" Layer)
+          on_colors = function(colors)
+            -- Force the background to be neutral charcoal (removing the blue tint)
+            if mode == "matte" then
+              colors.bg = industrial.charcoal
+              colors.bg_dark = industrial.deep_metal
+              colors.bg_float = industrial.metallic_grey
+              colors.bg_sidebar = industrial.deep_metal
+            else
+              -- Polished Mode (Higher contrast, deeper blacks)
+              colors.bg = industrial.deep_metal
+              colors.bg_dark = "#000000"
+              colors.bg_float = industrial.charcoal
+              colors.bg_sidebar = "#000000"
+            end
 
-              -- Comments (Make them truly muted)
-              Comment = { fg = colors.overlay0, style = { "italic" } },
+            -- Force Metallic UI elements
+            colors.bg_highlight = industrial.lighter_grey
+            colors.bg_popup = industrial.metallic_grey
+            colors.bg_statusline = industrial.metallic_grey
 
-              -- Dashboard Headers
-              SnacksDashboardHeader = { fg = colors.blue },
-            }
+            -- Override Borders to be Metallic
+            colors.border = industrial.lighter_grey
+          end,
+
+          -- 2. OVERRIDE THE HIGHLIGHTS (The "Teal" Layer)
+          on_highlights = function(hl, c)
+            -- Force Teal Borders and Accents
+            hl.TelescopeBorder = { fg = industrial.neon_teal, bg = c.bg_float }
+            hl.FloatBorder = { fg = industrial.neon_teal, bg = c.bg_float }
+            hl.NeoTreeWinSeparator = { fg = industrial.lighter_grey }
+
+            -- Line Numbers (Metallic Grey)
+            hl.LineNr = { fg = industrial.lighter_grey }
+            hl.CursorLineNr = { fg = industrial.neon_teal, bold = true }
+
+            -- Git Signs (Keep them distinct but integrated)
+            hl.GitSignsAdd = { fg = industrial.neon_teal }
+            -- Dashboard Header (Teal)
+            hl.SnacksDashboardHeader = { fg = industrial.neon_teal }
+
+            -- Lualine / Statusline hints
+            hl.StatusLine = { bg = industrial.metallic_grey, fg = "#a9b1d6" }
           end,
         })
 
-        vim.cmd.colorscheme("catppuccin")
+        vim.cmd([[colorscheme tokyonight]])
       end
 
       -- Toggle Logic
       function ToggleMissionControlTheme()
-        if is_deep_ops then
-          apply_theme("frappe") -- Switch to softer/lighter "Reading" mode
-          print("🍦 Mission Control: Soft Mode (Frappe)")
+        if is_matte then
+          apply_theme("polished")
+          print("⚙️ Mission Control: Polished Metal (Deep)")
         else
-          apply_theme("mocha") -- Switch to deep "Ops" mode
-          print("☕ Mission Control: Deep Ops (Mocha)")
+          apply_theme("matte")
+          print("🛡️ Mission Control: Matte Charcoal (Flat)")
         end
-        is_deep_ops = not is_deep_ops
+        is_matte = not is_matte
       end
 
-      -- Initialize with Mocha (Deep Ops)
-      apply_theme("mocha")
+      -- Initialize
+      apply_theme("matte")
 
       -- Keybinding
-      vim.keymap.set("n", "<leader>tm", ToggleMissionControlTheme, { desc = "Toggle Deep/Soft Theme" })
+      vim.keymap.set("n", "<leader>tm", ToggleMissionControlTheme, { desc = "Toggle Matte/Polished Theme" })
     end,
   },
 }
