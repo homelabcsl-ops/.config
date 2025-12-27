@@ -18,13 +18,18 @@ return {
           -- 1. Check if the current buffer is locked (Dashboard, Telemetry, etc.)
           local is_locked = not vim.bo.modifiable or vim.bo.readonly
 
-          -- 2. If locked, immediately switch to a fresh, writable buffer
           if is_locked then
+            -- Escape the dashboard
             vim.cmd("enew")
+
+            -- CRITICAL FIX: Force the new buffer to be writable.
+            -- Dashboards often set window-local options that 'stick' to the new buffer.
+            vim.bo.modifiable = true -- Force write access
+            vim.bo.readonly = false -- Disable read-only mode
+            vim.bo.buftype = "" -- Ensure it is treated as a standard file
           end
 
-          -- 3. CRITICAL FIX: Schedule the creation command for the NEXT event loop.
-          -- This forces Neovim to finish switching buffers before Obsidian tries to write.
+          -- 2. Run ObsidianNew in the clean, writable buffer
           vim.schedule(function()
             vim.cmd("ObsidianNew")
           end)
