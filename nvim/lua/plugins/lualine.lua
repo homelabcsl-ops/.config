@@ -95,7 +95,7 @@ return {
             },
             {
               function()
-                return "DKS v1.6.0"
+                return "DKS"
               end,
               color = { fg = c.metal }, -- Subtle branding
             },
