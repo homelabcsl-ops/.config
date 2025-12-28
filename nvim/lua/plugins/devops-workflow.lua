@@ -62,7 +62,9 @@ return {
         -- Construct path: ~/obsidian/devops/00-Inbox/Daily/2025-12-27.md
         local file_path = string.format("%s/%s/%s.md", vault_path, daily_folder, date_str)
 
+        -- Ensure directory exists (Safe: creates path if missing)
         vim.fn.mkdir(vim.fn.fnamemodify(file_path, ":h"), "p")
+
         local is_new = vim.fn.filereadable(file_path) == 0
 
         vim.cmd("edit " .. file_path)
@@ -77,12 +79,13 @@ return {
             table.insert(content, formatted)
           end
           vim.api.nvim_buf_set_lines(0, 0, -1, false, content)
+          -- Move cursor to "Focus for Today" and enter insert mode
           vim.cmd("normal 4G$")
           vim.cmd("startinsert!")
         end
       end
 
-      -- 2. Create Incident Report (Saves to Archive/Incidents)
+      -- 2. Create Incident Report (Saves to Archives/Incidents)
       _G.CreateIncidentReport = function()
         vim.ui.input({ prompt = "Incident Name: " }, function(input)
           if not input or input == "" then
@@ -93,6 +96,7 @@ return {
           local date_str = os.date("%Y-%m-%d")
 
           -- Saves to ~/obsidian/devops/40_Archives/incidents/...
+          -- Note: The logic below automatically creates this folder if it's missing.
           local file_path = string.format("%s/40_Archives/incidents/%s-%s.md", vault_path, date_str, safe_name)
 
           vim.fn.mkdir(vim.fn.fnamemodify(file_path, ":h"), "p")
