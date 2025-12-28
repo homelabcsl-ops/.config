@@ -1,12 +1,12 @@
 return {
-  -- 1. Register the key group name so the menu looks professional
+  -- 1. Register the key group name (Fixed for which-key v3)
   {
     "folke/which-key.nvim",
-    opts = function(_, opts)
-      if opts.defaults then
-        opts.defaults["<leader>k"] = { name = "+devops-system" }
-      end
-    end,
+    opts = {
+      spec = {
+        { "<leader>k", group = "devops-system", icon = "⚡" },
+      },
+    },
   },
 
   -- 2. The DevOps Custom Workflow Logic
