@@ -5,7 +5,7 @@ return {
       dashboard = {
         preset = {
           header = [[
-    🏛️  DEVOPS KNOWLEDGE SYSTEM v1.6.0
+    🏛️  DEVOPS KNOWLEDGE SYSTEM 
     STATUS: [PRODUCTION READY]
           ]],
         },
