@@ -31,5 +31,17 @@ config.colors = {
 config.window_background_opacity = 0.8
 config.macos_window_background_blur = 10
 
+-- Ensure Wezterm doesn't eat the navigation keys
+config.keys = {
+	{ key = "h", mods = "CTRL", action = wezterm.action.SendKey({ key = "h", mods = "CTRL" }) },
+	{ key = "j", mods = "CTRL", action = wezterm.action.SendKey({ key = "j", mods = "CTRL" }) },
+	{ key = "k", mods = "CTRL", action = wezterm.action.SendKey({ key = "k", mods = "CTRL" }) },
+	{ key = "l", mods = "CTRL", action = wezterm.action.SendKey({ key = "l", mods = "CTRL" }) },
+}
+
+-- B. Mission Control Auto-Launch
+-- Immediately launches our wrapper script
+config.default_prog = { "/bin/zsh", "-l", "-c", "~/bin/mission-control.sh" }
+
 -- and finally, return the configuration to wezterm
 return config
