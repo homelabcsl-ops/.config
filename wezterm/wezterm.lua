@@ -15,38 +15,41 @@ config.keys = {
 -- We strictly define the colors to match your "Carbonfox" + "Teal" aesthetic.
 
 config.colors = {
-	-- The "Industrial" Background (Carbonfox style)
-	background = "#16161d",
-	foreground = "#dcd7ba",
+	-- 1. 🧬 Genetic Match with theme.lua
+	-- We use the EXACT overrides from your plugin configuration
+	background = "#161616", -- Your Custom "Deep Charcoal" (bg1)
+	foreground = "#b6b8bb", -- Your "Foggy Grey" (fg1)
 
-	cursor_bg = "#008080", -- DKS Teal Cursor
-	cursor_fg = "#16161d",
+	-- UI Elements
+	cursor_bg = "#008080", -- DKS Signature Teal (Kept for consistency)
+	cursor_fg = "#161616",
+	cursor_border = "#008080",
 
-	selection_bg = "#2d4f67",
-	selection_fg = "#c8c093",
+	selection_bg = "#2b2b2b", -- Your Custom "Subtle Selection" (sel0)
+	selection_fg = "#b6b8bb",
 
-	-- The Color Palette (ANSI)
+	-- 2. 🌈 ANSI Palette (Standard Carbonfox)
+	-- These match the syntax highlighting logic in nightfox.nvim
 	ansi = {
-		"#090618", -- Black
-		"#c34043", -- Red
-		"#76946a", -- Green
-		"#c0a36e", -- Yellow
-		"#7e9cd8", -- Blue
-		"#957fb8", -- Magenta
-		"#6a9589", -- Cyan (Teal-ish)
-		"#c8c093", -- White
+		"#282828", -- Black
+		"#ee5396", -- Red (Muted Brick)
+		"#25be6a", -- Green
+		"#08bdba", -- Yellow (Carbonfox uses a Teal-ish Yellow!)
+		"#78a9ff", -- Blue
+		"#be95ff", -- Magenta
+		"#33b1ff", -- Cyan
+		"#dfdfe0", -- White
 	},
 	brights = {
-		"#727169", -- Bright Black
-		"#e82424", -- Bright Red
-		"#98bb6c", -- Bright Green
-		"#e6c384", -- Bright Yellow
-		"#7fb4ca", -- Bright Blue
-		"#938aa9", -- Bright Magenta
-		"#7aa89f", -- Bright Cyan
-		"#dcd7ba", -- Bright White
+		"#484848", -- Bright Black
+		"#f16da6", -- Bright Red
+		"#46c880", -- Bright Green
+		"#2dc7c4", -- Bright Yellow
+		"#8cb6ff", -- Bright Blue
+		"#c8a5ff", -- Bright Magenta
+		"#52bdff", -- Bright Cyan
+		"#e4e4e5", -- Bright White
 	},
-
 	-- 3. 📑 Tab Bar (Minimalist & Integrated)
 	tab_bar = {
 		background = "#090618",
