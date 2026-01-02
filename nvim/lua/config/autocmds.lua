@@ -1,7 +1,5 @@
 -- lua/config/autocmds.lua
 
-vim.notify("✅ DEBUG MODE: Ready to sniff.", vim.log.levels.WARN)
-
 local practice_log = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
 local log_dir = vim.fn.fnamemodify(practice_log, ":h")
 if vim.fn.isdirectory(log_dir) == 0 then
@@ -17,19 +15,37 @@ vim.api.nvim_create_autocmd("WinClosed", {
       return
     end
 
-    local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id })
-    local buf_name = vim.api.nvim_buf_get_name(buf_id)
+    -- 1. Get Details
+    local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id }):lower()
+    local buf_name = vim.api.nvim_buf_get_name(buf_id):lower()
 
-    -- THE SNIFFER: This will create a RED popup with the exact details
-    -- We need to know what 'FT' (Filetype) and 'Name' are for VimBeGood.
-    if ft ~= "noice" and ft ~= "notify" then -- Ignore the notification windows themselves
-      vim.notify("CLOSED -> FT: [" .. ft .. "] | Name: [" .. buf_name .. "]", vim.log.levels.ERROR)
+    -- 2. NOISE FILTER (Crucial Step)
+    -- Ignore the notification windows themselves to stop the loop
+    if ft == "snacks_notif" or ft == "noice" or ft == "notify" then
+      return
     end
 
-    -- Existing Logic (Keep this so Speedtyper still works)
-    if ft == "speedtyper" then
+    -- 3. CONTENT CHECK (The "Backup" Plan)
+    -- If the name is empty, check if the file contains "VimBeGood" text
+    local is_vimbegood = false
+    if buf_name:match("vimbegood") then
+      is_vimbegood = true
+    else
+      -- Peek at the first 5 lines to see if it looks like the game
+      local lines = vim.api.nvim_buf_get_lines(buf_id, 0, 5, false)
+      for _, line in ipairs(lines) do
+        if line:match("VimBeGood") or line:match("Exiting") then
+          is_vimbegood = true
+          break
+        end
+      end
+    end
+
+    -- 4. LOG IT
+    if ft == "speedtyper" or is_vimbegood then
       os.execute("touch " .. practice_log)
-      vim.notify("✅ DRILL COMPLETE", vim.log.levels.INFO)
+      -- Use 'print' instead of notify to be 100% safe from loops
+      print("✅ Drill Logged: " .. (ft == "speedtyper" and "Speedtyper" or "VimBeGood"))
     end
   end,
 })
