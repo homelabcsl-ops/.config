@@ -22,16 +22,16 @@ vim.api.nvim_create_autocmd("WinClosed", {
     -- Get the window ID that is closing
     local win_id = tonumber(args.match)
 
-    -- Safely try to get the buffer and filetype from that window
+    -- Try to get buffer info (safely)
     local status, buf_id = pcall(vim.api.nvim_win_get_buf, win_id)
     if not status then
       return
-    end -- Window already gone
+    end
 
     local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id })
     local buf_name = vim.api.nvim_buf_get_name(buf_id)
 
-    -- Check for our tools
+    -- Check if it matches our tools
     if ft == "speedtyper" then
       log_practice("Speedtyper")
     elseif string.match(buf_name, "VimBeGood") then
