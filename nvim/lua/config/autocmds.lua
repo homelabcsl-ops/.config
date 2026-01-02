@@ -2,27 +2,18 @@
 
 local practice_log = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
 
--- 1. Ensure the directory exists (Automated setup)
-local log_dir = vim.fn.fnamemodify(practice_log, ":h")
-if vim.fn.isdirectory(log_dir) == 0 then
-  vim.fn.mkdir(log_dir, "p")
-end
+-- 1. Debug Message on Startup (To prove this file is loaded)
+vim.schedule(function()
+  print("✅ Automation System Loaded")
+end)
 
--- 2. The Logger Function
-local function log_practice(tool_name)
-  os.execute("touch " .. practice_log)
-  local time = os.date("%H:%M:%S")
-  print("✅ " .. tool_name .. " session logged at " .. time)
-end
-
--- 3. The Listener (Updated to catch Floating Windows)
+-- 2. Watch for Window Closing
 vim.api.nvim_create_autocmd("WinClosed", {
   pattern = "*",
   callback = function(args)
-    -- Get the window ID that is closing
     local win_id = tonumber(args.match)
 
-    -- Try to get buffer info (safely)
+    -- Safely get buffer info
     local status, buf_id = pcall(vim.api.nvim_win_get_buf, win_id)
     if not status then
       return
@@ -31,11 +22,10 @@ vim.api.nvim_create_autocmd("WinClosed", {
     local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id })
     local buf_name = vim.api.nvim_buf_get_name(buf_id)
 
-    -- Check if it matches our tools
-    if ft == "speedtyper" then
-      log_practice("Speedtyper")
-    elseif string.match(buf_name, "VimBeGood") then
-      log_practice("Vim-Be-Good")
+    -- Check for tools and update log
+    if ft == "speedtyper" or string.match(buf_name, "VimBeGood") then
+      os.execute("touch " .. practice_log)
+      print("✅ Practice session logged to: " .. practice_log)
     end
   end,
 })
