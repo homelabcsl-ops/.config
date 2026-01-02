@@ -1,32 +1,41 @@
 -- lua/config/autocmds.lua
 
--- 1. FORCE create the directory immediately on startup
-local log_path = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
-local log_dir = vim.fn.fnamemodify(log_path, ":h")
+local practice_log = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
 
--- Force create directory now (synchronously)
+-- 1. Ensure the directory exists (Automated setup)
+local log_dir = vim.fn.fnamemodify(practice_log, ":h")
 if vim.fn.isdirectory(log_dir) == 0 then
-  local success = vim.fn.mkdir(log_dir, "p")
-  if success then
-    print("✅ Created log directory: " .. log_dir)
-  else
-    print("❌ Failed to create log directory: " .. log_dir)
-  end
+  vim.fn.mkdir(log_dir, "p")
 end
 
--- 2. The Debug Autocommand
-vim.api.nvim_create_autocmd("BufWinLeave", {
-  pattern = "*",
-  callback = function()
-    local ft = vim.bo.filetype
-    local bufname = vim.api.nvim_buf_get_name(0)
-    -- Print "DEBUG" message for EVERYTHING you close
-    print("🔍 DEBUG: Closing window. Filetype: '" .. ft .. "' | Name: '" .. bufname .. "'")
+-- 2. The Logger Function
+local function log_practice(tool_name)
+  os.execute("touch " .. practice_log)
+  local time = os.date("%H:%M:%S")
+  print("✅ " .. tool_name .. " session logged at " .. time)
+end
 
-    -- Logic to update log
-    if ft == "speedtyper" or string.match(bufname, "VimBeGood") then
-      os.execute("touch " .. log_path)
-      print("✅ MATCH FOUND! Log updated.")
+-- 3. The Listener (Updated to catch Floating Windows)
+vim.api.nvim_create_autocmd("WinClosed", {
+  pattern = "*",
+  callback = function(args)
+    -- Get the window ID that is closing
+    local win_id = tonumber(args.match)
+
+    -- Safely try to get the buffer and filetype from that window
+    local status, buf_id = pcall(vim.api.nvim_win_get_buf, win_id)
+    if not status then
+      return
+    end -- Window already gone
+
+    local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id })
+    local buf_name = vim.api.nvim_buf_get_name(buf_id)
+
+    -- Check for our tools
+    if ft == "speedtyper" then
+      log_practice("Speedtyper")
+    elseif string.match(buf_name, "VimBeGood") then
+      log_practice("Vim-Be-Good")
     end
   end,
 })
