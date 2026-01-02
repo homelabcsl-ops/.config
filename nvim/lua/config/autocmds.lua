@@ -15,37 +15,35 @@ vim.api.nvim_create_autocmd("WinClosed", {
       return
     end
 
-    -- 1. Get Details
     local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id }):lower()
     local buf_name = vim.api.nvim_buf_get_name(buf_id):lower()
 
-    -- 2. NOISE FILTER (Crucial Step)
-    -- Ignore the notification windows themselves to stop the loop
+    -- 1. NOISE FILTER
     if ft == "snacks_notif" or ft == "noice" or ft == "notify" then
       return
     end
 
-    -- 3. CONTENT CHECK (The "Backup" Plan)
-    -- If the name is empty, check if the file contains "VimBeGood" text
+    -- 2. IDENTIFY TOOLS
+    local is_typr = (ft == "typr")
     local is_vimbegood = false
+
     if buf_name:match("vimbegood") then
       is_vimbegood = true
     else
-      -- Peek at the first 5 lines to see if it looks like the game
+      -- Deep check for VimBeGood
       local lines = vim.api.nvim_buf_get_lines(buf_id, 0, 5, false)
       for _, line in ipairs(lines) do
-        if line:match("VimBeGood") or line:match("Exiting") then
+        if line:match("VimBeGood") then
           is_vimbegood = true
           break
         end
       end
     end
 
-    -- 4. LOG IT
-    if ft == "speedtyper" or is_vimbegood then
+    -- 3. LOG IT
+    if is_typr or is_vimbegood then
       os.execute("touch " .. practice_log)
-      -- Use 'print' instead of notify to be 100% safe from loops
-      print("✅ Drill Logged: " .. (ft == "speedtyper" and "Speedtyper" or "VimBeGood"))
+      print("✅ Drill Logged: " .. (is_typr and "Typr" or "VimBeGood"))
     end
   end,
 })
