@@ -1,6 +1,6 @@
 -- lua/config/autocmds.lua
 
-vim.notify("✅ DIAGNOSTIC: Autocmds loaded!", vim.log.levels.WARN)
+vim.notify("✅ DEBUG MODE: Ready to sniff.", vim.log.levels.WARN)
 
 local practice_log = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
 local log_dir = vim.fn.fnamemodify(practice_log, ":h")
@@ -17,17 +17,19 @@ vim.api.nvim_create_autocmd("WinClosed", {
       return
     end
 
-    -- Get both Filetype and Name, convert to lowercase for easy matching
-    local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id }):lower()
-    local buf_name = vim.api.nvim_buf_get_name(buf_id):lower()
+    local ft = vim.api.nvim_get_option_value("filetype", { buf = buf_id })
+    local buf_name = vim.api.nvim_buf_get_name(buf_id)
 
-    -- DEBUG: This tells us exactly what VimBeGood is calling itself if it fails again
-    -- vim.notify("Closed: FT=['" .. ft .. "'] Name=['" .. buf_name .. "']", vim.log.levels.INFO)
+    -- THE SNIFFER: This will create a RED popup with the exact details
+    -- We need to know what 'FT' (Filetype) and 'Name' are for VimBeGood.
+    if ft ~= "noice" and ft ~= "notify" then -- Ignore the notification windows themselves
+      vim.notify("CLOSED -> FT: [" .. ft .. "] | Name: [" .. buf_name .. "]", vim.log.levels.ERROR)
+    end
 
-    -- The "Broad Net" Check
-    if ft == "speedtyper" or buf_name:match("vimbegood") or buf_name:match("vim-be-good") or ft:match("vimbegood") then
+    -- Existing Logic (Keep this so Speedtyper still works)
+    if ft == "speedtyper" then
       os.execute("touch " .. practice_log)
-      vim.notify("✅ DRILL COMPLETE: Logged successfully.", vim.log.levels.WARN)
+      vim.notify("✅ DRILL COMPLETE", vim.log.levels.INFO)
     end
   end,
 })
