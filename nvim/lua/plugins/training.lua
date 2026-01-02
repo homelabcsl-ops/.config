@@ -16,6 +16,6 @@ return {
   {
     "ThePrimeagen/vim-be-good",
     cmd = "VimBeGood", -- Loads only when you run the command
-    -- REMOVED: build = "./install.sh" (Plugin is now pure Lua)
+    -- NO build line here!
   },
 }
