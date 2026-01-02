@@ -1,20 +1,18 @@
 return {
-  -- Speedtyper: In-editor typing practice
+  -- Typr: The modern, frictionless replacement for Speedtyper
   {
-    "NStefan002/speedtyper.nvim",
-    branch = "main",
-    cmd = "Speedtyper",
-    config = function()
-      -- 1. Initialize the plugin (with no arguments)
-      require("speedtyper").setup()
-
-      -- 2. Run settings commands safely wrapped in a function
-      -- This fixes the "table" error you saw in the screenshot
-      pcall(function()
-        vim.cmd("SpeedtyperSettings sound enabled false")
-        vim.cmd("SpeedtyperSettings window transparent true")
-      end)
-    end,
+    "nvzone/typr",
+    dependencies = "nvzone/volt", -- Required library
+    cmd = { "Typr", "TyprStats" },
+    opts = {
+      -- It works out of the box, but you can tweak UI here
+      ui = {
+        win = {
+          width = 0.8,
+          height = 0.8,
+        },
+      },
+    },
   },
 
   -- Vim-Be-Good: Gamified Vim motion practice
