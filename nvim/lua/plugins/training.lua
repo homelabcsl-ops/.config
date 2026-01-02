@@ -5,11 +5,15 @@ return {
     branch = "main",
     cmd = "Speedtyper",
     config = function()
-      -- Execute settings commands only after the plugin loads
-      -- 1. Disable sound (Fixes "No tools" error)
-      vim.cmd("SpeedtyperSettings sound enabled false")
-      -- 2. Set transparency (Optional)
-      vim.cmd("SpeedtyperSettings window transparent true")
+      -- 1. Initialize the plugin (with no arguments)
+      require("speedtyper").setup()
+
+      -- 2. Run settings commands safely wrapped in a function
+      -- This fixes the "table" error you saw in the screenshot
+      pcall(function()
+        vim.cmd("SpeedtyperSettings sound enabled false")
+        vim.cmd("SpeedtyperSettings window transparent true")
+      end)
     end,
   },
 
