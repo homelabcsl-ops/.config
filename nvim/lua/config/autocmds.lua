@@ -1,27 +1,32 @@
 -- lua/config/autocmds.lua
 
--- Define the log path
-local practice_log = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
+-- 1. FORCE create the directory immediately on startup
+local log_path = vim.fn.expand("~/.local/share/nvim/typing_practice_log")
+local log_dir = vim.fn.fnamemodify(log_path, ":h")
 
--- Create the directory if it doesn't exist
-local log_dir = vim.fn.fnamemodify(practice_log, ":h")
+-- Force create directory now (synchronously)
 if vim.fn.isdirectory(log_dir) == 0 then
-  vim.fn.mkdir(log_dir, "p")
+  local success = vim.fn.mkdir(log_dir, "p")
+  if success then
+    print("✅ Created log directory: " .. log_dir)
+  else
+    print("❌ Failed to create log directory: " .. log_dir)
+  end
 end
 
--- Function to update the log timestamp
-local function log_practice_session()
-  os.execute("touch " .. practice_log)
-  vim.notify("✅ Drill Complete: Session logged.", vim.log.levels.INFO)
-end
-
--- Autocommand: Triggers when you leave a buffer
+-- 2. The Debug Autocommand
 vim.api.nvim_create_autocmd("BufWinLeave", {
   pattern = "*",
   callback = function()
     local ft = vim.bo.filetype
-    if ft == "speedtyper" or string.match(vim.api.nvim_buf_get_name(0), "VimBeGood") then
-      log_practice_session()
+    local bufname = vim.api.nvim_buf_get_name(0)
+    -- Print "DEBUG" message for EVERYTHING you close
+    print("🔍 DEBUG: Closing window. Filetype: '" .. ft .. "' | Name: '" .. bufname .. "'")
+
+    -- Logic to update log
+    if ft == "speedtyper" or string.match(bufname, "VimBeGood") then
+      os.execute("touch " .. log_path)
+      print("✅ MATCH FOUND! Log updated.")
     end
   end,
 })
