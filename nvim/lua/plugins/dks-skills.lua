@@ -39,7 +39,7 @@ return {
     opts = function(_, opts)
       -- 1. DEFINE YOUR VAULT PATH
       -- IMPORTANT: Verify this path matches your actual Obsidian folder structure.
-      local vault_path = vim.fn.expand("~/obsidian/devops")
+      local vault_path = vim.fn.expand("~/obsidisn/devops")
       local metric_file = vault_path .. "/observability/metrics.md"
 
       -- 2. CREATE THE LOGGING COMMAND
@@ -51,6 +51,7 @@ return {
             local date = os.date("%Y-%m-%d %H:%M:%S")
             -- Format for Markdown Table
             local log_entry = string.format("| %s | %s |", date, input)
+
             -- Write to the file
             local file = io.open(metric_file, "a")
             if file then
