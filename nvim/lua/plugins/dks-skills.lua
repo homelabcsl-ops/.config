@@ -14,7 +14,7 @@ return {
     cmd = "Speedtyper",
     branch = "main",
     keys = {
-      { "<leader>st", "<cmd>Speedtyper<cr>", desc = "Skill: Throughput (Speedtyper)" },
+      { "<leader>sh", "<cmd>Speedtyper<cr>", desc = "Skill: Throughput (Speedtyper)" },
     },
     opts = {
       game_modes = {
