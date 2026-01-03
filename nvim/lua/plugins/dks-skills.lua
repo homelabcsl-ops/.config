@@ -40,7 +40,7 @@ return {
       -- 1. DEFINE YOUR VAULT PATH
       -- IMPORTANT: Verify this path matches your actual Obsidian folder structure.
       local vault_path = vim.fn.expand("~/obsidian/devops")
-      local metric_file = vault_path .. "/00_META/metrics.md"
+      local metric_file = vault_path .. "/observability/metrics.md"
 
       -- 2. CREATE THE LOGGING COMMAND
       vim.api.nvim_create_user_command("LogSkill", function()
