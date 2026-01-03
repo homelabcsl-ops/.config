@@ -4,7 +4,7 @@ return {
     "ThePrimeagen/vim-be-good",
     cmd = "VimBeGood",
     keys = {
-      { "<leader>sp", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
+      { "<leader>sg", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
     },
   },
 
