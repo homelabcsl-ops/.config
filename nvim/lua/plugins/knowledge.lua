@@ -125,8 +125,10 @@ return {
         },
       },
 
-      -- FIX: Default behavior is fine now that we handle JD naming manually
+      -- FIX: Simplified Note ID Function to prevent crashes
       note_id_func = function(spec)
+        -- If the title is already formatted (like "10.01 - Title"), use it exactly.
+        -- This prevents the "arithmetic on nil" error.
         if spec.title then
           return spec.title
         end
@@ -164,7 +166,7 @@ return {
 
       -- === JOHNNY DECIMAL AUTOMATION LOGIC ===
       _G.create_jd_note = function()
-        -- FIX: Renamed to avoid shadowing
+        -- FIX: Renamed variable to 'obs_client' to avoid shadowing warnings
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
 
@@ -225,26 +227,24 @@ return {
             local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
             local full_path = category_path .. "/" .. filename
 
-            -- FIX: Use 'edit' instead of 'ObsidianNew' to guarantee naming
-            vim.schedule(function()
-              vim.cmd("enew") -- Clear buffer
-              vim.cmd("edit " .. full_path) -- Open exact path
+            -- 7. WRITE TO DISK DIRECTLY (Bypass Neovim Buffers)
+            local file = io.open(full_path, "w")
+            if file then
+              file:write("---\n")
+              file:write("id: " .. category_id .. "." .. next_id_str .. "\n")
+              file:write("aliases: []\n")
+              file:write("tags: []\n")
+              file:write("---\n\n")
+              file:write("# " .. input .. "\n")
+              file:close()
 
-              -- 7. Write minimal frontmatter manually (since we bypassed ObsidianNew)
-              local buf = vim.api.nvim_get_current_buf()
-              local frontmatter = {
-                "---",
-                "id: " .. category_id .. "." .. next_id_str,
-                "aliases: []",
-                "tags: []",
-                "---",
-                "",
-                "# " .. input,
-                "",
-              }
-              vim.api.nvim_buf_set_lines(buf, 0, -1, false, frontmatter)
-              vim.cmd("write") -- Save it immediately to register it
-            end)
+              -- 8. Open the File
+              vim.schedule(function()
+                vim.cmd("edit " .. full_path)
+              end)
+            else
+              vim.notify("Failed to write file: " .. full_path, vim.log.levels.ERROR)
+            end
           end)
         end)
       end
