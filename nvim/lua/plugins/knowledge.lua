@@ -125,9 +125,14 @@ return {
         },
       },
 
+      -- FIX: Simplified Note ID Function to prevent crashes
       note_id_func = function(spec)
-        local path = spec.dir / tostring(spec.title)
-        return path:name()
+        -- If the title is already formatted (like "10.01 - Title"), use it exactly.
+        -- This prevents the "arithmetic on nil" error.
+        if spec.title then
+          return spec.title
+        end
+        return tostring(os.time())
       end,
 
       note_frontmatter_func = function(note)
@@ -161,6 +166,7 @@ return {
 
       -- === JOHNNY DECIMAL AUTOMATION LOGIC ===
       _G.create_jd_note = function()
+        -- FIX: Renamed variable to 'obs_client' to avoid shadowing warnings
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
 
@@ -216,10 +222,15 @@ return {
             if not input or input == "" then
               return
             end
+
             -- 6. Create the Note
             local final_name = string.format("%s.%s - %s", category_id, next_id_str, input)
-            -- Use Obsidian's API to ensure templates/frontmatter apply
-            vim.cmd("ObsidianNew " .. choice .. "/" .. final_name)
+
+            -- FIX: Wrapped in vim.schedule to prevent 'Buffer is not modifiable' error
+            -- This waits for the input box to close fully before creating the file.
+            vim.schedule(function()
+              vim.cmd("ObsidianNew " .. choice .. "/" .. final_name)
+            end)
           end)
         end)
       end
