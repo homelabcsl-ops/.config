@@ -125,10 +125,8 @@ return {
         },
       },
 
-      -- FIX: Simplified Note ID Function to prevent crashes
+      -- FIX: Default behavior is fine now that we handle JD naming manually
       note_id_func = function(spec)
-        -- If the title is already formatted (like "10.01 - Title"), use it exactly.
-        -- This prevents the "arithmetic on nil" error.
         if spec.title then
           return spec.title
         end
@@ -166,7 +164,7 @@ return {
 
       -- === JOHNNY DECIMAL AUTOMATION LOGIC ===
       _G.create_jd_note = function()
-        -- FIX: Renamed variable to 'obs_client' to avoid shadowing warnings
+        -- FIX: Renamed to avoid shadowing
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
 
@@ -223,16 +221,29 @@ return {
               return
             end
 
-            -- 6. Create the Note
-            local final_name = string.format("%s.%s - %s", category_id, next_id_str, input)
+            -- 6. Construct the exact filename
+            local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
+            local full_path = category_path .. "/" .. filename
 
-            -- FIX: Wrapped in vim.schedule to prevent 'Buffer is not modifiable' error
-            -- This waits for the input box to close fully before creating the file.
+            -- FIX: Use 'edit' instead of 'ObsidianNew' to guarantee naming
             vim.schedule(function()
-              vim.cmd("enew") -- Create blank buffer
-              vim.bo.buftype = "" -- Ensure it's a normal buffer
-              vim.bo.modifiable = true -- Ensure it's writable
-              vim.cmd("ObsidianNew " .. choice .. "/" .. final_name)
+              vim.cmd("enew") -- Clear buffer
+              vim.cmd("edit " .. full_path) -- Open exact path
+
+              -- 7. Write minimal frontmatter manually (since we bypassed ObsidianNew)
+              local buf = vim.api.nvim_get_current_buf()
+              local frontmatter = {
+                "---",
+                "id: " .. category_id .. "." .. next_id_str,
+                "aliases: []",
+                "tags: []",
+                "---",
+                "",
+                "# " .. input,
+                "",
+              }
+              vim.api.nvim_buf_set_lines(buf, 0, -1, false, frontmatter)
+              vim.cmd("write") -- Save it immediately to register it
             end)
           end)
         end)
