@@ -229,6 +229,9 @@ return {
             -- FIX: Wrapped in vim.schedule to prevent 'Buffer is not modifiable' error
             -- This waits for the input box to close fully before creating the file.
             vim.schedule(function()
+              vim.cmd("enew") -- Create blank buffer
+              vim.bo.buftype = "" -- Ensure it's a normal buffer
+              vim.bo.modifiable = true -- Ensure it's writable
               vim.cmd("ObsidianNew " .. choice .. "/" .. final_name)
             end)
           end)
