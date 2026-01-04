@@ -54,6 +54,14 @@ return {
         desc = "Switch Workspace",
       },
 
+      {
+        "<leader>oj",
+        function()
+          _G.create_jd_note()
+        end,
+        desc = "New Johnny Decimal Note",
+      },
+
       -- 3. Standard Keys
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
@@ -149,6 +157,71 @@ return {
       if client then
         ---@diagnostic disable-next-line: undefined-field
         local _ = client.opts.templates and client.opts.templates.subdir or "Templates"
+      end
+
+      -- === JOHNNY DECIMAL AUTOMATION LOGIC ===
+      _G.create_jd_note = function()
+        local obs_client = require("obsidian").get_client()
+        local workspace_path = vim.fs.normalize(obs_client.dir.filename)
+
+        -- 1. Get all directories that start with a number (00-99)
+        local scan = require("plenary.scandir")
+        local dirs = scan.scan_dir(workspace_path, {
+          depth = 1,
+          only_dirs = true,
+          on_insert = function(entry)
+            -- Filter only folders matching "10-Name", "20-Name" format
+            return entry:match("/%d%d%-")
+          end,
+        })
+
+        -- Clean up paths to just show folder names for the UI
+        local options = {}
+        for _, dir in ipairs(dirs) do
+          table.insert(options, vim.fn.fnamemodify(dir, ":t"))
+        end
+        table.sort(options)
+
+        -- 2. Ask User to Select Category
+        vim.ui.select(options, { prompt = "Select JD Category:" }, function(choice)
+          if not choice then
+            return
+          end
+
+          local category_path = workspace_path .. "/" .. choice
+          local category_id = choice:sub(1, 2) -- Extract "10" from "10-Linux"
+
+          -- 3. Scan for highest index in that folder
+          local max_index = 0
+          local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
+
+          for _, file in ipairs(files) do
+            local filename = vim.fn.fnamemodify(file, ":t")
+            -- Match files like "10.05 - Title.md"
+            local id_match = filename:match("^" .. category_id .. "%.(%d+)")
+            if id_match then
+              local num = tonumber(id_match)
+              if num and num > max_index then
+                max_index = num
+              end
+            end
+          end
+
+          -- 4. Calculate Next ID
+          local next_index = max_index + 1
+          local next_id_str = string.format("%02d", next_index) -- e.g., "05"
+
+          -- 5. Ask for Title
+          vim.ui.input({ prompt = "Note Title: " .. category_id .. "." .. next_id_str .. " - " }, function(input)
+            if not input or input == "" then
+              return
+            end
+            -- 6. Create the Note
+            local final_name = string.format("%s.%s - %s", category_id, next_id_str, input)
+            -- Use Obsidian's API to ensure templates/frontmatter apply
+            vim.cmd("ObsidianNew " .. choice .. "/" .. final_name)
+          end)
+        end)
       end
     end,
   },
