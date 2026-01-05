@@ -1,4 +1,5 @@
 -- lua/plugins/knowledge.lua
+-- lua/plugins/knowledge.lua
 return {
   {
     "epwalsh/obsidian.nvim",
@@ -91,6 +92,11 @@ return {
         folder = "00-Inbox/Daily",
         date_format = "%Y-%m-%d",
         template = "daily-note.md",
+      },
+
+      -- FIX: Configure Image Destination (New Block)
+      attachments = {
+        img_folder = "Assets", -- Saves images to your Assets folder
       },
 
       completion = {
