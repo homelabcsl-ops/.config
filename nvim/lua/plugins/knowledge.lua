@@ -1,5 +1,3 @@
--- lua/plugins/knowledge.tmux_show_only_in_active_window
--- lua/plugins/knowledge.lua
 return {
   -- =========================================
   -- 1. INFRASTRUCTURE: Luarocks & Image Engine
@@ -15,8 +13,18 @@ return {
     "3rd/image.nvim",
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
+    -- FEATURE: <leader>oi toggles images on/off instantly
+    keys = {
+      {
+        "<leader>oi",
+        function()
+          require("image").toggle()
+        end,
+        desc = "Toggle/Render Images",
+      },
+    },
     opts = {
-      backend = "kitty", -- Works for Ghostty, WezTerm, Kitty. Change to "iterm" if using iTerm2.
+      backend = "kitty",
       integrations = {
         markdown = {
           enabled = true,
@@ -97,7 +105,8 @@ return {
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
-      { "<leader>oi", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image" },
+      -- CHANGED: Moved Paste Image to <leader>op
+      { "<leader>op", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image" },
       { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show Backlinks" },
       { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename Note" },
       { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
