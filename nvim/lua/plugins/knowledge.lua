@@ -1,22 +1,19 @@
--- lua/plugins/knowledge.tmux_show_only_in_active_window
 -- lua/plugins/knowledge.lua
 return {
   -- =========================================
-  -- 1. INFRASTRUCTURE: Luarocks & Image Engine
+  -- 1. INFRASTRUCTURE: Image Engine
   -- =========================================
   {
     "vhyrro/luarocks.nvim",
     priority = 1001,
-    opts = {
-      rocks = { "magick" },
-    },
+    opts = { rocks = { "magick" } },
   },
   {
     "3rd/image.nvim",
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
     opts = {
-      backend = "kitty", -- Works for Ghostty, WezTerm, Kitty. Change to "iterm" if using iTerm2.
+      backend = "kitty", -- Change to "iterm" if using iTerm2
       integrations = {
         markdown = {
           enabled = true,
@@ -31,9 +28,7 @@ return {
       max_width_window_percentage = math.huge,
       max_height_window_percentage = math.huge,
       window_overlap_clear_enabled = false,
-      editor_only_render_when_focused = false,
       tmux_show_only_in_active_window = true,
-      hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.avif" },
     },
   },
 
@@ -120,57 +115,11 @@ return {
         nvim_cmp = false,
         min_chars = 2,
       },
-      mappings = {
-        ["gf"] = {
-          action = function()
-            return require("obsidian").util.gf_passthrough()
-          end,
-          opts = { noremap = false, expr = true, buffer = true },
-        },
-        ["<cr>"] = {
-          action = function()
-            return require("obsidian").util.smart_action()
-          end,
-          opts = { buffer = true, expr = true },
-        },
-      },
-      templates = {
-        subdir = "Templates",
-        date_format = "%Y-%m-%d",
-        time_format = "%H:%M",
-        tags = "",
-        substitutions = {
-          yesterday = function()
-            return os.date("%Y-%m-%d", os.time() - 86400)
-          end,
-        },
-      },
-      note_id_func = function(spec)
-        if spec.title then
-          return spec.title
-        end
-        return tostring(os.time())
-      end,
-      note_frontmatter_func = function(note)
-        local out = { id = note.id, aliases = note.aliases, tags = note.tags }
-        if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
-          for k, v in pairs(note.metadata) do
-            out[k] = v
-          end
-        end
-        return out
-      end,
-      ui = {
-        enable = true,
-        update_debounce = 200,
-        checkboxes = {
-          [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
-          ["x"] = { char = "", hl_group = "ObsidianDone" },
-        },
-      },
+      ui = { enable = true },
     },
     config = function(_, opts)
       require("obsidian").setup(opts)
+
       -- Johnny Decimal Logic
       _G.create_jd_note = function()
         local obs_client = require("obsidian").get_client()
@@ -197,6 +146,7 @@ return {
           end
           local category_path = workspace_path .. "/" .. choice
           local category_id = choice:sub(1, 2)
+
           local max_index = 0
           local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
           for _, file in ipairs(files) do
