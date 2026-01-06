@@ -105,8 +105,7 @@ return {
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
-      -- CHANGED: Moved Paste Image to <leader>op
-      { "<leader>op", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image" },
+      -- NOTE: <leader>op removed here. It is now handled by img-clip.nvim below.
       { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show Backlinks" },
       { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename Note" },
       { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
@@ -123,7 +122,7 @@ return {
         template = "daily-note.md",
       },
       attachments = {
-        img_folder = "Assets",
+        img_folder = "Assets", -- Matches img-clip config below
       },
       completion = {
         nvim_cmp = false,
@@ -251,5 +250,34 @@ return {
         end)
       end
     end,
+  },
+
+  -- =========================================
+  -- 3. IMAGE TOOLS: Pasting Logic
+  -- =========================================
+  {
+    "HakonHarnes/img-clip.nvim",
+    event = "VeryLazy",
+    keys = {
+      -- This replaces the built-in ObsidianPasteImg for instant feedback
+      { "<leader>op", "<cmd>PasteImage<cr>", desc = "Paste Image from Clipboard" },
+    },
+    opts = {
+      default = {
+        embed_image_as_base64 = false,
+        prompt_for_file_name = false,
+        drag_and_drop = { insert_mode = true },
+        use_absolute_path = false,
+        relative_to_current_file = true,
+        dir_path = "Assets", -- Matches Obsidian config
+      },
+      filetypes = {
+        markdown = {
+          url_encode_path = true,
+          template = "![[$FILE_NAME]]", -- Obsidian Wiki-link format
+          download_images = false,
+        },
+      },
+    },
   },
 }
