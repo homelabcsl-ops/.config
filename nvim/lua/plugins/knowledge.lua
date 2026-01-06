@@ -1,3 +1,5 @@
+-- lua/plugins/knowledge.tmux_show_only_in_active_window
+-- lua/plugins/knowledge.lua
 return {
   -- =========================================
   -- 1. INFRASTRUCTURE: Luarocks & Image Engine
@@ -13,18 +15,8 @@ return {
     "3rd/image.nvim",
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
-    -- FEATURE: <leader>oi toggles images on/off instantly
-    keys = {
-      {
-        "<leader>oi",
-        function()
-          require("image").toggle()
-        end,
-        desc = "Toggle/Render Images",
-      },
-    },
     opts = {
-      backend = "kitty",
+      backend = "kitty", -- Works for Ghostty, WezTerm, Kitty. Change to "iterm" if using iTerm2.
       integrations = {
         markdown = {
           enabled = true,
@@ -105,7 +97,7 @@ return {
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
-      -- NOTE: <leader>op removed here. It is now handled by img-clip.nvim below.
+      { "<leader>oi", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image" },
       { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show Backlinks" },
       { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename Note" },
       { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
@@ -122,7 +114,7 @@ return {
         template = "daily-note.md",
       },
       attachments = {
-        img_folder = "Assets", -- Matches img-clip config below
+        img_folder = "Assets",
       },
       completion = {
         nvim_cmp = false,
@@ -250,34 +242,5 @@ return {
         end)
       end
     end,
-  },
-
-  -- =========================================
-  -- 3. IMAGE TOOLS: Pasting Logic
-  -- =========================================
-  {
-    "HakonHarnes/img-clip.nvim",
-    event = "VeryLazy",
-    keys = {
-      -- This replaces the built-in ObsidianPasteImg for instant feedback
-      { "<leader>op", "<cmd>PasteImage<cr>", desc = "Paste Image from Clipboard" },
-    },
-    opts = {
-      default = {
-        embed_image_as_base64 = false,
-        prompt_for_file_name = false,
-        drag_and_drop = { insert_mode = true },
-        use_absolute_path = false,
-        relative_to_current_file = true,
-        dir_path = "Assets", -- Matches Obsidian config
-      },
-      filetypes = {
-        markdown = {
-          url_encode_path = true,
-          template = "![[$FILE_NAME]]", -- Obsidian Wiki-link format
-          download_images = false,
-        },
-      },
-    },
   },
 }
