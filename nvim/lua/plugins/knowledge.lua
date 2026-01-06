@@ -11,7 +11,7 @@ return {
   {
     "3rd/image.nvim",
     dependencies = { "vhyrro/luarocks.nvim" },
-    event = "VeryLazy",
+    lazy = "false", -- CHANGED: Load immediately!
     opts = {
       backend = "kitty", -- Change to "iterm" if using iTerm2
       integrations = {
