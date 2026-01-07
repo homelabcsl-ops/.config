@@ -13,8 +13,25 @@ return {
     "3rd/image.nvim",
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
+    keys = {
+      -- FIXED: True Toggle Mechanism
+      {
+        "<leader>oi",
+        function()
+          local img = require("image")
+          if img.is_enabled() then
+            img.disable()
+            vim.notify("Images Hidden", vim.log.levels.INFO)
+          else
+            img.enable()
+            vim.notify("Images Visible", vim.log.levels.INFO)
+          end
+        end,
+        desc = "Toggle Images",
+      },
+    },
     opts = {
-      backend = "kitty", -- Works for Ghostty, WezTerm, Kitty.
+      backend = "kitty",
       integrations = {
         markdown = {
           enabled = true,
@@ -95,8 +112,7 @@ return {
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
-      -- Note: <leader>oi is Obsidian's internal paste. Use <leader>op (configured below) for the visual workflow.
-      { "<leader>oi", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image (Obsidian)" },
+      -- Note: <leader>oi is handled by image.nvim above.
       { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show Backlinks" },
       { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename Note" },
       { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
@@ -254,7 +270,7 @@ return {
     },
     opts = {
       default = {
-        prompt_for_file_name = true, -- Requirement 1: Prompt for name
+        prompt_for_file_name = true,
         embed_image_as_base64 = false,
         drag_and_drop = {
           insert_mode = true,
@@ -266,7 +282,7 @@ return {
       filetypes = {
         markdown = {
           url_encode_path = true,
-          template = "![$FILE_NAME]($FILE_PATH)", -- Requirement 2: Standard link for instant render
+          template = "![$FILE_NAME]($FILE_PATH)", -- Standard Markdown for instant render
           download_images = false,
         },
       },
