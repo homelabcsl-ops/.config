@@ -1,5 +1,3 @@
--- lua/plugins/knowledge.tmux_show_only_in_active_window
--- lua/plugins/knowledge.lua
 return {
   -- =========================================
   -- 1. INFRASTRUCTURE: Luarocks & Image Engine
@@ -16,7 +14,7 @@ return {
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
     opts = {
-      backend = "kitty", -- Works for Ghostty, WezTerm, Kitty. Change to "iterm" if using iTerm2.
+      backend = "kitty", -- Works for Ghostty, WezTerm, Kitty.
       integrations = {
         markdown = {
           enabled = true,
@@ -97,7 +95,8 @@ return {
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
-      { "<leader>oi", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image" },
+      -- Note: <leader>oi is Obsidian's internal paste. Use <leader>op (configured below) for the visual workflow.
+      { "<leader>oi", "<cmd>ObsidianPasteImg<cr>", desc = "Paste Image (Obsidian)" },
       { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show Backlinks" },
       { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename Note" },
       { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
@@ -242,5 +241,35 @@ return {
         end)
       end
     end,
+  },
+
+  -- =========================================
+  -- 3. IMAGE TOOLS: Pasting Logic
+  -- =========================================
+  {
+    "HakonHarnes/img-clip.nvim",
+    event = "VeryLazy",
+    keys = {
+      { "<leader>op", "<cmd>PasteImage<cr>", desc = "Paste Image" },
+    },
+    opts = {
+      default = {
+        prompt_for_file_name = true, -- Requirement 1: Prompt for name
+        embed_image_as_base64 = false,
+        drag_and_drop = {
+          insert_mode = true,
+        },
+        use_absolute_path = false,
+        relative_to_current_file = true,
+        dir_path = "Assets",
+      },
+      filetypes = {
+        markdown = {
+          url_encode_path = true,
+          template = "![$FILE_NAME]($FILE_PATH)", -- Requirement 2: Standard link for instant render
+          download_images = false,
+        },
+      },
+    },
   },
 }
