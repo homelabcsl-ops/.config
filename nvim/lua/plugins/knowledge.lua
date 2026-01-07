@@ -14,7 +14,7 @@ return {
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
     keys = {
-      -- FIXED: True Toggle Mechanism
+      -- FIXED: Uses explicit enable/disable to prevent the "Undefined field toggle" crash
       {
         "<leader>oi",
         function()
@@ -275,14 +275,16 @@ return {
         drag_and_drop = {
           insert_mode = true,
         },
+        -- FIXED: These settings ensure images go to the ROOT 'Assets' folder
+        -- matching the structure shown in your screenshot.
+        relative_to_current_file = false,
         use_absolute_path = false,
-        relative_to_current_file = true,
         dir_path = "Assets",
       },
       filetypes = {
         markdown = {
           url_encode_path = true,
-          template = "![$FILE_NAME]($FILE_PATH)", -- Standard Markdown for instant render
+          template = "![$FILE_NAME]($FILE_PATH)",
           download_images = false,
         },
       },
