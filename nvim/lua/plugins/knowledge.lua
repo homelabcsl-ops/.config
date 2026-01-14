@@ -100,7 +100,7 @@ return {
         end,
         desc = "Switch Workspace",
       },
-      -- Johnny Decimal Automation
+      -- Johnny Decimal Automation (UPDATED FOR NESTED DKS)
       {
         "<leader>oj",
         function()
@@ -186,13 +186,14 @@ return {
     },
     config = function(_, opts)
       require("obsidian").setup(opts)
-      -- Johnny Decimal Logic
+      -- Johnny Decimal Logic (UPDATED: Area -> Category Selection)
       _G.create_jd_note = function()
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
         local scan = require("plenary.scandir")
 
-        local dirs = scan.scan_dir(workspace_path, {
+        -- STEP 1: Scan for AREAS (e.g., "10-DevOps-Lab")
+        local areas = scan.scan_dir(workspace_path, {
           depth = 1,
           only_dirs = true,
           on_insert = function(entry)
@@ -200,59 +201,85 @@ return {
           end,
         })
 
-        local options = {}
-        for _, dir in ipairs(dirs) do
-          table.insert(options, vim.fn.fnamemodify(dir, ":t"))
+        local area_options = {}
+        for _, dir in ipairs(areas) do
+          table.insert(area_options, vim.fn.fnamemodify(dir, ":t"))
         end
-        table.sort(options)
+        table.sort(area_options)
 
-        vim.ui.select(options, { prompt = "Select JD Category:" }, function(choice)
-          if not choice then
+        vim.ui.select(area_options, { prompt = "Step 1: Select Area" }, function(area_choice)
+          if not area_choice then
             return
           end
-          local category_path = workspace_path .. "/" .. choice
-          local category_id = choice:sub(1, 2)
-          local max_index = 0
-          local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
-          for _, file in ipairs(files) do
-            local filename = vim.fn.fnamemodify(file, ":t")
-            local id_match = filename:match("^" .. category_id .. "%.(%d+)")
-            if id_match then
-              local num = tonumber(id_match)
-              if num and num > max_index then
-                max_index = num
-              end
-            end
+
+          -- STEP 2: Scan for CATEGORIES inside the chosen Area (e.g., "11-Linux-Systems")
+          local area_path = workspace_path .. "/" .. area_choice
+          local categories = scan.scan_dir(area_path, {
+            depth = 1,
+            only_dirs = true,
+            on_insert = function(entry)
+              return entry:match("/%d%d%-")
+            end,
+          })
+
+          local cat_options = {}
+          for _, dir in ipairs(categories) do
+            table.insert(cat_options, vim.fn.fnamemodify(dir, ":t"))
           end
+          table.sort(cat_options)
 
-          local next_index = max_index + 1
-          local next_id_str = string.format("%02d", next_index)
-
-          vim.ui.input({ prompt = "Note Title: " .. category_id .. "." .. next_id_str .. " - " }, function(input)
-            if not input or input == "" then
+          vim.ui.select(cat_options, { prompt = "Step 2: Select Category" }, function(cat_choice)
+            if not cat_choice then
               return
             end
-            local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
-            local full_path = category_path .. "/" .. filename
 
-            local file = io.open(full_path, "w")
-            if file then
-              file:write(
-                "---\nid: "
-                  .. category_id
-                  .. "."
-                  .. next_id_str
-                  .. "\naliases: []\ntags: []\n---\n\n# "
-                  .. input
-                  .. "\n"
-              )
-              file:close()
-              vim.schedule(function()
-                vim.cmd("edit " .. full_path)
-              end)
-            else
-              vim.notify("Failed to write file", vim.log.levels.ERROR)
+            -- STEP 3: Create the Note
+            local category_path = area_path .. "/" .. cat_choice
+            local category_id = cat_choice:sub(1, 2) -- Extracts "11" from "11-Linux..."
+
+            local max_index = 0
+            local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
+            for _, file in ipairs(files) do
+              local filename = vim.fn.fnamemodify(file, ":t")
+              -- Matches "11.01 - Title.md"
+              local id_match = filename:match("^" .. category_id .. "%.(%d+)")
+              if id_match then
+                local num = tonumber(id_match)
+                if num and num > max_index then
+                  max_index = num
+                end
+              end
             end
+
+            local next_index = max_index + 1
+            local next_id_str = string.format("%02d", next_index)
+
+            vim.ui.input({ prompt = "Title: " .. category_id .. "." .. next_id_str .. " - " }, function(input)
+              if not input or input == "" then
+                return
+              end
+              local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
+              local full_path = category_path .. "/" .. filename
+
+              local file = io.open(full_path, "w")
+              if file then
+                file:write(
+                  "---\nid: "
+                    .. category_id
+                    .. "."
+                    .. next_id_str
+                    .. "\naliases: []\ntags: []\n---\n\n# "
+                    .. input
+                    .. "\n"
+                )
+                file:close()
+                vim.schedule(function()
+                  vim.cmd("edit " .. full_path)
+                end)
+              else
+                vim.notify("Failed to write file", vim.log.levels.ERROR)
+              end
+            end)
           end)
         end)
       end
