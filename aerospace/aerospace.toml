@@ -26,6 +26,7 @@ outer.right = 10
 # WS 5: [00-09] INBOX           -> Mail, Calendar, Notes (Quick Capture)
 
 [mode.main.binding]
+alt-shift-semicolon = 'mode service'
 
 # --- Context Switching (Alt + Domain ID) ---
 alt-1 = 'workspace 1' # Engineering Mode

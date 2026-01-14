@@ -1,0 +1,19 @@
+# dks-lab.yaml
+# The "Clean Room" for LF Training
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+cpus: 2
+memory: "4GiB"
+
+mounts:
+  - location: "~"
+    writable: false
+  - location: "/tmp/dks-share"
+    writable: true
+
+# Forward Docker socket (Future proofing for container module)
+# containerd:
+#   system: false
+#   user: false
