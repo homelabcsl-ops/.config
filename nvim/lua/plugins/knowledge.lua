@@ -14,7 +14,6 @@ return {
     dependencies = { "vhyrro/luarocks.nvim" },
     event = "VeryLazy",
     keys = {
-      -- FIXED: Uses explicit enable/disable to prevent the "Undefined field toggle" crash
       {
         "<leader>oi",
         function()
@@ -66,41 +65,7 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     keys = {
-      -- Smart Launch
-      {
-        "<leader>on",
-        function()
-          local is_locked = not vim.bo.modifiable or vim.bo.readonly
-          if is_locked then
-            vim.cmd("enew")
-            vim.bo.modifiable = true
-            vim.bo.readonly = false
-            vim.bo.buftype = ""
-          end
-          vim.schedule(function()
-            vim.cmd("ObsidianNew")
-          end)
-        end,
-        desc = "New Note (Knowledge)",
-      },
-      -- Workspace Switcher
-      {
-        "<leader>ow",
-        function()
-          local workspaces = { "devops", "personal" }
-          vim.ui.select(workspaces, { prompt = "Select Workspace" }, function(choice)
-            if not choice then
-              return
-            end
-            vim.cmd("ObsidianWorkspace " .. choice)
-            local vault_path = vim.fn.expand("~/obsidian/" .. choice)
-            vim.cmd("cd " .. vault_path)
-            vim.notify("Moved to Vault: " .. choice .. "\nPath: " .. vault_path, vim.log.levels.INFO)
-          end)
-        end,
-        desc = "Switch Workspace",
-      },
-      -- Johnny Decimal Automation (UPDATED FOR NESTED DKS)
+      -- JD Automation Logic
       {
         "<leader>oj",
         function()
@@ -108,23 +73,39 @@ return {
         end,
         desc = "New Johnny Decimal Note",
       },
+      -- Workspace Switcher
+      {
+        "<leader>ow",
+        function()
+          local workspaces = { "personal", "devops" }
+          vim.ui.select(workspaces, { prompt = "Select Workspace" }, function(choice)
+            if not choice then
+              return
+            end
+            vim.cmd("ObsidianWorkspace " .. choice)
+
+            -- Auto-cd to the selected vault for Telescope/Grepping
+            local vault_path = vim.fn.expand("~/obsidian/" .. choice)
+            vim.cmd("cd " .. vault_path)
+            vim.notify("Switched to Vault: " .. choice, vim.log.levels.INFO)
+          end)
+        end,
+        desc = "Switch Workspace",
+      },
       -- Standard Keys
+      { "<leader>on", "<cmd>ObsidianNew<cr>", desc = "New Note (Default)" },
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
-      -- Note: <leader>oi is handled by image.nvim above.
-      { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Show Backlinks" },
-      { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename Note" },
-      { "<leader>oe", "<cmd>ObsidianExtract<cr>", desc = "Extract to Note" },
-      { "<leader>od", "<cmd>ObsidianTOC<cr>", desc = "Table of Contents" },
+      { "<leader>op", "<cmd>PasteImage<cr>", desc = "Paste Image" },
     },
     opts = {
       workspaces = {
-        { name = "devops", path = "~/obsidian/devops" },
         { name = "personal", path = "~/obsidian/personal" },
+        { name = "devops", path = "~/obsidian/devops" },
       },
       daily_notes = {
-        folder = "00-Inbox/Daily",
+        folder = "00-Inbox",
         date_format = "%Y-%m-%d",
         template = "daily-note.md",
       },
@@ -135,46 +116,11 @@ return {
         nvim_cmp = false,
         min_chars = 2,
       },
-      mappings = {
-        ["gf"] = {
-          action = function()
-            return require("obsidian").util.gf_passthrough()
-          end,
-          opts = { noremap = false, expr = true, buffer = true },
-        },
-        ["<cr>"] = {
-          action = function()
-            return require("obsidian").util.smart_action()
-          end,
-          opts = { buffer = true, expr = true },
-        },
-      },
       templates = {
-        subdir = "Templates",
+        subdir = "01-Admin/Templates",
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
-        tags = "",
-        substitutions = {
-          yesterday = function()
-            return os.date("%Y-%m-%d", os.time() - 86400)
-          end,
-        },
       },
-      note_id_func = function(spec)
-        if spec.title then
-          return spec.title
-        end
-        return tostring(os.time())
-      end,
-      note_frontmatter_func = function(note)
-        local out = { id = note.id, aliases = note.aliases, tags = note.tags }
-        if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
-          for k, v in pairs(note.metadata) do
-            out[k] = v
-          end
-        end
-        return out
-      end,
       ui = {
         enable = true,
         update_debounce = 200,
@@ -186,14 +132,18 @@ return {
     },
     config = function(_, opts)
       require("obsidian").setup(opts)
-      -- Johnny Decimal Logic (UPDATED: Area -> Category Selection)
+
+      -- =========================================
+      -- THE LOGIC: JD Auto-Allocator v2 (Universal)
+      -- =========================================
       _G.create_jd_note = function()
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
+        local vault_name = obs_client.current_workspace.name -- Gets 'devops' or 'personal'
         local scan = require("plenary.scandir")
 
-        -- STEP 1: Scan for AREAS (e.g., "10-DevOps-Lab")
-        local areas = scan.scan_dir(workspace_path, {
+        -- 1. Scan for Categories
+        local dirs = scan.scan_dir(workspace_path, {
           depth = 1,
           only_dirs = true,
           on_insert = function(entry)
@@ -201,85 +151,108 @@ return {
           end,
         })
 
-        local area_options = {}
-        for _, dir in ipairs(areas) do
-          table.insert(area_options, vim.fn.fnamemodify(dir, ":t"))
+        local options = {}
+        for _, dir in ipairs(dirs) do
+          table.insert(options, vim.fn.fnamemodify(dir, ":t"))
         end
-        table.sort(area_options)
+        table.sort(options)
 
-        vim.ui.select(area_options, { prompt = "Step 1: Select Area" }, function(area_choice)
-          if not area_choice then
+        -- 2. Select Category
+        vim.ui.select(options, { prompt = "Select Category [" .. vault_name .. "]:" }, function(choice)
+          if not choice then
             return
           end
 
-          -- STEP 2: Scan for CATEGORIES inside the chosen Area (e.g., "11-Linux-Systems")
-          local area_path = workspace_path .. "/" .. area_choice
-          local categories = scan.scan_dir(area_path, {
-            depth = 1,
-            only_dirs = true,
-            on_insert = function(entry)
-              return entry:match("/%d%d%-")
-            end,
-          })
+          local category_path = workspace_path .. "/" .. choice
+          local category_id = choice:sub(1, 2)
+          local max_index = 0
 
-          local cat_options = {}
-          for _, dir in ipairs(categories) do
-            table.insert(cat_options, vim.fn.fnamemodify(dir, ":t"))
+          -- 3. INTELLIGENT SCAN: Check Files AND Folders for ID collisions
+          -- Check Files
+          local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
+          for _, file in ipairs(files) do
+            local filename = vim.fn.fnamemodify(file, ":t")
+            local id_match = filename:match("^" .. category_id .. "%.(%d+)")
+            if id_match then
+              local num = tonumber(id_match)
+              if num and num > max_index then
+                max_index = num
+              end
+            end
           end
-          table.sort(cat_options)
+          -- Check Sub-folders (Project Bundles)
+          local subdirs = scan.scan_dir(category_path, { depth = 1, only_dirs = true })
+          for _, dir in ipairs(subdirs) do
+            local dirname = vim.fn.fnamemodify(dir, ":t")
+            local id_match = dirname:match("^" .. category_id .. "%.(%d+)")
+            if id_match then
+              local num = tonumber(id_match)
+              if num and num > max_index then
+                max_index = num
+              end
+            end
+          end
 
-          vim.ui.select(cat_options, { prompt = "Step 2: Select Category" }, function(cat_choice)
-            if not cat_choice then
+          local next_index = max_index + 1
+          local next_id_str = string.format("%02d", next_index)
+
+          -- 4. Prompt for Title
+          vim.ui.input({ prompt = "Title (" .. category_id .. "." .. next_id_str .. "): " }, function(input)
+            if not input or input == "" then
               return
             end
 
-            -- STEP 3: Create the Note
-            local category_path = area_path .. "/" .. cat_choice
-            local category_id = cat_choice:sub(1, 2) -- Extracts "11" from "11-Linux..."
+            -- 5. Prompt for Type: Note or Project Folder?
+            vim.ui.select(
+              { "Note (Flat File)", "Project (Folder Bundle)" },
+              { prompt = "Select Type:" },
+              function(type_choice)
+                if not type_choice then
+                  return
+                end
 
-            local max_index = 0
-            local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
-            for _, file in ipairs(files) do
-              local filename = vim.fn.fnamemodify(file, ":t")
-              -- Matches "11.01 - Title.md"
-              local id_match = filename:match("^" .. category_id .. "%.(%d+)")
-              if id_match then
-                local num = tonumber(id_match)
-                if num and num > max_index then
-                  max_index = num
+                local is_folder = type_choice == "Project (Folder Bundle)"
+
+                if is_folder then
+                  -- OPTION A: Create Sub-folder Bundle
+                  local folder_name = string.format("%s.%s - %s", category_id, next_id_str, input)
+                  local full_dir_path = category_path .. "/" .. folder_name
+                  local index_filename = folder_name .. ".md"
+                  local full_file_path = full_dir_path .. "/" .. index_filename
+
+                  vim.fn.mkdir(full_dir_path, "p")
+
+                  local file = io.open(full_file_path, "w")
+                  if file then
+                    file:write(
+                      "---\nid: "
+                        .. category_id
+                        .. "."
+                        .. next_id_str
+                        .. "\ntype: project\n---\n\n# "
+                        .. input
+                        .. "\n\n"
+                    )
+                    file:close()
+                    vim.schedule(function()
+                      vim.cmd("edit " .. full_file_path)
+                    end)
+                  end
+                else
+                  -- OPTION B: Standard Flat Note
+                  local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
+                  local full_path = category_path .. "/" .. filename
+                  local file = io.open(full_path, "w")
+                  if file then
+                    file:write("---\nid: " .. category_id .. "." .. next_id_str .. "\ntype: note\n---\n\n# " .. input)
+                    file:close()
+                    vim.schedule(function()
+                      vim.cmd("edit " .. full_path)
+                    end)
+                  end
                 end
               end
-            end
-
-            local next_index = max_index + 1
-            local next_id_str = string.format("%02d", next_index)
-
-            vim.ui.input({ prompt = "Title: " .. category_id .. "." .. next_id_str .. " - " }, function(input)
-              if not input or input == "" then
-                return
-              end
-              local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
-              local full_path = category_path .. "/" .. filename
-
-              local file = io.open(full_path, "w")
-              if file then
-                file:write(
-                  "---\nid: "
-                    .. category_id
-                    .. "."
-                    .. next_id_str
-                    .. "\naliases: []\ntags: []\n---\n\n# "
-                    .. input
-                    .. "\n"
-                )
-                file:close()
-                vim.schedule(function()
-                  vim.cmd("edit " .. full_path)
-                end)
-              else
-                vim.notify("Failed to write file", vim.log.levels.ERROR)
-              end
-            end)
+            )
           end)
         end)
       end
@@ -287,33 +260,16 @@ return {
   },
 
   -- =========================================
-  -- 3. IMAGE TOOLS: Pasting Logic
+  -- 3. IMAGE TOOLS (Integrated)
   -- =========================================
   {
     "HakonHarnes/img-clip.nvim",
     event = "VeryLazy",
-    keys = {
-      { "<leader>op", "<cmd>PasteImage<cr>", desc = "Paste Image" },
-    },
+    keys = { { "<leader>op", "<cmd>PasteImage<cr>", desc = "Paste Image" } },
     opts = {
       default = {
         prompt_for_file_name = true,
-        embed_image_as_base64 = false,
-        drag_and_drop = {
-          insert_mode = true,
-        },
-        -- FIXED: These settings ensure images go to the ROOT 'Assets' folder
-        -- matching the structure shown in your screenshot.
-        relative_to_current_file = false,
-        use_absolute_path = false,
         dir_path = "Assets",
-      },
-      filetypes = {
-        markdown = {
-          url_encode_path = true,
-          template = "![$FILE_NAME]($FILE_PATH)",
-          download_images = false,
-        },
       },
     },
   },
