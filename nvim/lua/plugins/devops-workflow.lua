@@ -20,6 +20,8 @@ return {
 
       -- We point this to the SAME daily folder defined in knowledge.lua
       local daily_folder = "00-Inbox/Daily"
+      -- NEW PATH: Aligned with LF Module 18 (Observability & Incident Response)
+      local incident_folder = "10-DevOps-Lab/18-Observability/Incidents"
 
       -- TEMPLATES
       local templates = {
@@ -35,7 +37,7 @@ return {
         },
         incident = {
           "---",
-          "tags: [incident, post-mortem]",
+          "tags: [incident, post-mortem, lfs262]", -- Added LF Course Tag
           "date: %s",
           "---",
           "",
@@ -95,9 +97,9 @@ return {
           local safe_name = input:gsub("%s+", "-"):lower()
           local date_str = os.date("%Y-%m-%d")
 
-          -- Saves to ~/obsidian/devops/40_Archives/incidents/...
+          -- Saves to ~/obsidian/devops/10-DevOps-Lab/18-Observability/Incidents/...
           -- Note: The logic below automatically creates this folder if it's missing.
-          local file_path = string.format("%s/40_Archives/incidents/%s-%s.md", vault_path, date_str, safe_name)
+          local file_path = string.format("%s/%s/%s-%s.md", vault_path, incident_folder, date_str, safe_name)
 
           vim.fn.mkdir(vim.fn.fnamemodify(file_path, ":h"), "p")
           vim.cmd("edit " .. file_path)

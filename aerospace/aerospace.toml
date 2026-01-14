@@ -1,15 +1,14 @@
 # ==============================================================================
-# 🏛️ DEVOPS KNOWLEDGE SYSTEM: AEROSPACE (Hybrid Workflow)
+# 🏛️ DEVOPS KNOWLEDGE SYSTEM: AEROSPACE v2.0
+# Domain-Aligned Workflow (The 4 Pillars)
 # ==============================================================================
 
 # 1. CORE BEHAVIOR
-# ------------------------------------------------------------------------------
 start-at-login = true
 enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = false
 
-# 2. TITANIUM GAPS (Matches #161616 Theme)
-# ------------------------------------------------------------------------------
+# 2. TITANIUM AESTHETIC (Matches Neovim Theme)
 [gaps]
 inner.horizontal = 10
 inner.vertical = 10
@@ -18,31 +17,31 @@ outer.bottom = 10
 outer.top = 10
 outer.right = 10
 
-# 3. WORKSPACE MAPPING (Macro-Contexts)
+# 3. DOMAIN MAPPING (The Cognitive Links)
 # ------------------------------------------------------------------------------
-# WS 1: THE FORGE   -> WezTerm (Contains Tmux: Editor/Term/Monitor)
-# WS 2: THE PREVIEW -> Browser (For live-server & AWS Console)
-# WS 3: COMM        -> Slack / Discord
-# WS 4: REFERENCE   -> PDFs / Documentation
-# WS 5: SYSTEM      -> Finder / Settings
+# WS 1: [10-19] DEVOPS LAB      -> Terminal (WezTerm/Ghostty), Docker
+# WS 2: [20-29] WRITING STUDIO  -> Browser (Chrome/Arc) for Research
+# WS 3: [30-39] TEACHING HUB    -> Preview (PDFs), Slack (Comms)
+# WS 4: [40-49] SYSTEM CONFIG   -> Finder, System Settings
+# WS 5: [00-09] INBOX           -> Mail, Calendar, Notes (Quick Capture)
 
 [mode.main.binding]
 
-# --- Workspace Switching (Alt + Number) ---
-alt-1 = 'workspace 1'
-alt-2 = 'workspace 2'
-alt-3 = 'workspace 3'
-alt-4 = 'workspace 4'
-alt-5 = 'workspace 5'
+# --- Context Switching (Alt + Domain ID) ---
+alt-1 = 'workspace 1' # Engineering Mode
+alt-2 = 'workspace 2' # Writer Mode
+alt-3 = 'workspace 3' # Teacher Mode
+alt-4 = 'workspace 4' # Systems Mode
+alt-5 = 'workspace 5' # Inbox Mode
 
-# --- Window Movement (Throwing Windows) ---
+# --- Window Movement (Throwing to Domains) ---
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'
 alt-shift-4 = 'move-node-to-workspace 4'
 alt-shift-5 = 'move-node-to-workspace 5'
 
-# 4. VIM PARITY NAVIGATION
+# 4. VIM NAVIGATION (Frictionless)
 # ------------------------------------------------------------------------------
 alt-h = 'focus left'
 alt-j = 'focus down'
@@ -55,26 +54,35 @@ alt-shift-k = 'move up'
 alt-shift-l = 'move right'
 
 alt-f = 'fullscreen'
+alt-tab = 'workspace-back-and-forth'
 
 # 5. AUTOMATION RULES (The Router)
 # ------------------------------------------------------------------------------
 
-# RULE: The "Forge" Anchor
-# Forces your automated WezTerm session to always land on WS-1
+# FORCE: Terminals to DevOps Lab (WS 1)
 [[on-window-detected]]
 if.app-id = 'com.github.wez.wezterm'
 run = 'move-node-to-workspace 1'
 
-# RULE: The "Preview" Anchor
-# Forces Browsers to WS-2. When you run `live-server`, the browser opens here.
+# FORCE: Browsers to Writing Studio (WS 2)
+# (Adjust 'com.google.Chrome' if you use Arc or Safari)
 [[on-window-detected]]
-if.app-id = 'com.google.Chrome'  # Or 'company.thebrowser.Browser' (Arc)
+if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace 2'
 
-# RULE: The "Comm" Anchor
+# FORCE: Preview/PDFs to Teaching Hub (WS 3)
 [[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
+if.app-id = 'com.apple.Preview'
 run = 'move-node-to-workspace 3'
+
+# FORCE: Finder/Settings to System Config (WS 4)
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'move-node-to-workspace 4'
 
 # 6. SERVICE MODE
 # ------------------------------------------------------------------------------
