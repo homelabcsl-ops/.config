@@ -1,6 +1,6 @@
 # ==============================================================================
-# 🏛️ DEVOPS KNOWLEDGE SYSTEM: AEROSPACE v2.0
-# Domain-Aligned Workflow (The 4 Pillars)
+# 🏛️ DEVOPS KNOWLEDGE SYSTEM: AEROSPACE v2.2
+# Domain-Aligned Workflow (Streamlined: Engineering, Chrome, Discord, System)
 # ==============================================================================
 
 # 1. CORE BEHAVIOR
@@ -8,7 +8,7 @@ start-at-login = true
 enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = false
 
-# 2. TITANIUM AESTHETIC (Matches Neovim Theme)
+# 2. TITANIUM AESTHETIC
 [gaps]
 inner.horizontal = 10
 inner.vertical = 10
@@ -17,32 +17,29 @@ outer.bottom = 10
 outer.top = 10
 outer.right = 10
 
-# 3. DOMAIN MAPPING (The Cognitive Links)
+# 3. DOMAIN MAPPING
 # ------------------------------------------------------------------------------
-# WS 1: [10-19] DEVOPS LAB      -> Terminal (WezTerm/Ghostty), Docker
-# WS 2: [20-29] WRITING STUDIO  -> Browser (Chrome/Arc) for Research
-# WS 3: [30-39] TEACHING HUB    -> Preview (PDFs), Slack (Comms)
-# WS 4: [40-49] SYSTEM CONFIG   -> Finder, System Settings
-# WS 5: [00-09] INBOX           -> Mail, Calendar, Notes (Quick Capture)
+# WS 1: ENGINEERING MODE -> Terminal (WezTerm/Ghostty), Docker
+# WS 2: CHROME MODE      -> Google Chrome
+# WS 3: DISCORD          -> Discord
+# WS 4: SYSTEM CONFIG    -> Finder, System Settings
 
 [mode.main.binding]
 alt-shift-semicolon = 'mode service'
 
-# --- Context Switching (Alt + Domain ID) ---
-alt-1 = 'workspace 1' # Engineering Mode
-alt-2 = 'workspace 2' # Writer Mode
-alt-3 = 'workspace 3' # Teacher Mode
-alt-4 = 'workspace 4' # Systems Mode
-alt-5 = 'workspace 5' # Inbox Mode
+# --- Context Switching ---
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
 
-# --- Window Movement (Throwing to Domains) ---
+# --- Window Movement ---
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'
 alt-shift-4 = 'move-node-to-workspace 4'
-alt-shift-5 = 'move-node-to-workspace 5'
 
-# 4. VIM NAVIGATION (Frictionless)
+# 4. VIM NAVIGATION
 # ------------------------------------------------------------------------------
 alt-h = 'focus left'
 alt-j = 'focus down'
@@ -60,23 +57,30 @@ alt-tab = 'workspace-back-and-forth'
 # 5. AUTOMATION RULES (The Router)
 # ------------------------------------------------------------------------------
 
-# FORCE: Terminals to DevOps Lab (WS 1)
+# --- WS 1: ENGINEERING MODE ---
 [[on-window-detected]]
 if.app-id = 'com.github.wez.wezterm'
 run = 'move-node-to-workspace 1'
 
-# FORCE: Browsers to Writing Studio (WS 2)
-# (Adjust 'com.google.Chrome' if you use Arc or Safari)
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.docker.docker'
+run = 'move-node-to-workspace 1'
+
+# --- WS 2: CHROME MODE ---
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace 2'
 
-# FORCE: Preview/PDFs to Teaching Hub (WS 3)
+# --- WS 3: DISCORD ---
 [[on-window-detected]]
-if.app-id = 'com.apple.Preview'
+if.app-id = 'com.hnc.Discord'
 run = 'move-node-to-workspace 3'
 
-# FORCE: Finder/Settings to System Config (WS 4)
+# --- WS 4: SYSTEM CONFIG ---
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
 run = 'move-node-to-workspace 4'
