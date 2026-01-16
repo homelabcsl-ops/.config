@@ -134,41 +134,24 @@ return {
       require("obsidian").setup(opts)
 
       -- =========================================
-      -- THE LOGIC: JD Auto-Allocator v2 (Universal)
+      -- THE LOGIC: JD Auto-Allocator v2.1 (Deep Dive)
       -- =========================================
       _G.create_jd_note = function()
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
-        local vault_name = obs_client.current_workspace.name -- Gets 'devops' or 'personal'
+        local vault_name = obs_client.current_workspace.name
         local scan = require("plenary.scandir")
 
-        -- 1. Scan for Categories
-        local dirs = scan.scan_dir(workspace_path, {
-          depth = 1,
-          only_dirs = true,
-          on_insert = function(entry)
-            return entry:match("/%d%d%-")
-          end,
-        })
-
-        local options = {}
-        for _, dir in ipairs(dirs) do
-          table.insert(options, vim.fn.fnamemodify(dir, ":t"))
-        end
-        table.sort(options)
-
-        -- 2. Select Category
-        vim.ui.select(options, { prompt = "Select Category [" .. vault_name .. "]:" }, function(choice)
-          if not choice then
-            return
+        -- === CORE FUNCTION: Creates the note in the final resolved path ===
+        local function create_note_in_category(category_path, category_folder_name)
+          local category_id = category_folder_name:match("^(%d%d)")
+          if not category_id then
+            category_id = "00"
           end
 
-          local category_path = workspace_path .. "/" .. choice
-          local category_id = choice:sub(1, 2)
           local max_index = 0
 
-          -- 3. INTELLIGENT SCAN: Check Files AND Folders for ID collisions
-          -- Check Files
+          -- 1. Scan Files for existing IDs
           local files = scan.scan_dir(category_path, { depth = 1, search_pattern = "%.md$" })
           for _, file in ipairs(files) do
             local filename = vim.fn.fnamemodify(file, ":t")
@@ -180,7 +163,8 @@ return {
               end
             end
           end
-          -- Check Sub-folders (Project Bundles)
+
+          -- 2. Scan Project Folders for existing IDs
           local subdirs = scan.scan_dir(category_path, { depth = 1, only_dirs = true })
           for _, dir in ipairs(subdirs) do
             local dirname = vim.fn.fnamemodify(dir, ":t")
@@ -195,14 +179,15 @@ return {
 
           local next_index = max_index + 1
           local next_id_str = string.format("%02d", next_index)
+          local full_id = category_id .. "." .. next_id_str
 
-          -- 4. Prompt for Title
-          vim.ui.input({ prompt = "Title (" .. category_id .. "." .. next_id_str .. "): " }, function(input)
+          -- 3. Prompt for Title
+          vim.ui.input({ prompt = "Title (" .. full_id .. "): " }, function(input)
             if not input or input == "" then
               return
             end
 
-            -- 5. Prompt for Type: Note or Project Folder?
+            -- 4. Prompt for Type
             vim.ui.select(
               { "Note (Flat File)", "Project (Folder Bundle)" },
               { prompt = "Select Type:" },
@@ -210,41 +195,31 @@ return {
                 if not type_choice then
                   return
                 end
-
                 local is_folder = type_choice == "Project (Folder Bundle)"
 
                 if is_folder then
-                  -- OPTION A: Create Sub-folder Bundle
-                  local folder_name = string.format("%s.%s - %s", category_id, next_id_str, input)
+                  -- CREATE FOLDER BUNDLE
+                  local folder_name = string.format("%s - %s", full_id, input)
                   local full_dir_path = category_path .. "/" .. folder_name
-                  local index_filename = folder_name .. ".md"
-                  local full_file_path = full_dir_path .. "/" .. index_filename
+                  local index_file = folder_name .. ".md"
+                  local full_file_path = full_dir_path .. "/" .. index_file
 
                   vim.fn.mkdir(full_dir_path, "p")
-
                   local file = io.open(full_file_path, "w")
                   if file then
-                    file:write(
-                      "---\nid: "
-                        .. category_id
-                        .. "."
-                        .. next_id_str
-                        .. "\ntype: project\n---\n\n# "
-                        .. input
-                        .. "\n\n"
-                    )
+                    file:write("---\nid: " .. full_id .. "\ntype: project\n---\n\n# " .. input .. "\n\n")
                     file:close()
                     vim.schedule(function()
                       vim.cmd("edit " .. full_file_path)
                     end)
                   end
                 else
-                  -- OPTION B: Standard Flat Note
-                  local filename = string.format("%s.%s - %s.md", category_id, next_id_str, input)
+                  -- CREATE FLAT NOTE
+                  local filename = string.format("%s - %s.md", full_id, input)
                   local full_path = category_path .. "/" .. filename
                   local file = io.open(full_path, "w")
                   if file then
-                    file:write("---\nid: " .. category_id .. "." .. next_id_str .. "\ntype: note\n---\n\n# " .. input)
+                    file:write("---\nid: " .. full_id .. "\ntype: note\n---\n\n# " .. input)
                     file:close()
                     vim.schedule(function()
                       vim.cmd("edit " .. full_path)
@@ -254,6 +229,58 @@ return {
               end
             )
           end)
+        end
+        -- ================================================================
+
+        -- STEP 1: Scan for Areas (Level 1)
+        local areas = scan.scan_dir(workspace_path, {
+          depth = 1,
+          only_dirs = true,
+          on_insert = function(entry)
+            return entry:match("/%d%d%-")
+          end,
+        })
+
+        local area_options = {}
+        for _, dir in ipairs(areas) do
+          table.insert(area_options, vim.fn.fnamemodify(dir, ":t"))
+        end
+        table.sort(area_options)
+
+        vim.ui.select(area_options, { prompt = "Select Area [" .. vault_name .. "]:" }, function(area_choice)
+          if not area_choice then
+            return
+          end
+          local area_path = workspace_path .. "/" .. area_choice
+
+          -- STEP 2: Intelligent Sub-Category Check
+          local categories = scan.scan_dir(area_path, {
+            depth = 1,
+            only_dirs = true,
+            on_insert = function(entry)
+              return entry:match("/%d%d%-")
+            end,
+          })
+
+          if #categories > 0 then
+            -- Sub-categories exist! Ask user to drill down.
+            local cat_options = {}
+            for _, dir in ipairs(categories) do
+              table.insert(cat_options, vim.fn.fnamemodify(dir, ":t"))
+            end
+            table.sort(cat_options)
+
+            vim.ui.select(cat_options, { prompt = "Select Category [" .. area_choice .. "]:" }, function(cat_choice)
+              if not cat_choice then
+                return
+              end
+              -- Run logic in the sub-folder (e.g. 40-System-Config/42-Aerospace)
+              create_note_in_category(area_path .. "/" .. cat_choice, cat_choice)
+            end)
+          else
+            -- No sub-categories (Flat Area), run logic directly in Area
+            create_note_in_category(area_path, area_choice)
+          end
         end)
       end
     end,
