@@ -11,7 +11,7 @@ return {
 
   -- 2. The DevOps Custom Workflow Logic
   {
-    name = "devops-knowledge-system",
+    "devops-knowledge-system",
     dir = vim.fn.stdpath("config"),
     config = function()
       -- --- CONFIGURATION (ALIGNED) ---
@@ -87,23 +87,51 @@ return {
         end
       end
 
-      -- 2. Create Incident Report (Saves to Archives/Incidents)
+      -- 2. Create Incident Report (JD-Smart Version)
       _G.CreateIncidentReport = function()
         vim.ui.input({ prompt = "Incident Name: " }, function(input)
           if not input or input == "" then
             return
           end
 
-          local safe_name = input:gsub("%s+", "-"):lower()
-          local date_str = os.date("%Y-%m-%d")
+          -- A. CONFIGURATION
+          -- We hardcode the Category ID for Observability/Incidents (18)
+          local category_id = "18"
+          local full_dir_path = vault_path .. "/" .. incident_folder
 
-          -- Saves to ~/obsidian/devops/10-DevOps-Lab/18-Observability/Incidents/...
-          -- Note: The logic below automatically creates this folder if it's missing.
-          local file_path = string.format("%s/%s/%s-%s.md", vault_path, incident_folder, date_str, safe_name)
+          -- Ensure directory exists
+          vim.fn.mkdir(full_dir_path, "p")
 
-          vim.fn.mkdir(vim.fn.fnamemodify(file_path, ":h"), "p")
+          -- B. SCANNING LOGIC (Find the next ID)
+          local scan = require("plenary.scandir")
+          local max_index = 0
+
+          -- Scan for existing files starting with "18.xx"
+          local files = scan.scan_dir(full_dir_path, { depth = 1, search_pattern = "%.md$" })
+          for _, file in ipairs(files) do
+            local filename = vim.fn.fnamemodify(file, ":t")
+            -- Regex to capture the number part of "18.05"
+            local id_match = filename:match("^" .. category_id .. "%.(%d+)")
+            if id_match then
+              local num = tonumber(id_match)
+              if num and num > max_index then
+                max_index = num
+              end
+            end
+          end
+
+          -- C. GENERATE NEXT ID
+          local next_index = max_index + 1
+          local full_id = string.format("%s.%02d", category_id, next_index)
+
+          -- Create Filename: "18.01 - Incident Name.md"
+          local filename = string.format("%s - %s.md", full_id, input)
+          local file_path = full_dir_path .. "/" .. filename
+
+          -- D. WRITE & OPEN
           vim.cmd("edit " .. file_path)
 
+          local date_str = os.date("%Y-%m-%d")
           local content = {}
           for _, line in ipairs(templates.incident) do
             local formatted = line:gsub("%%s", date_str, 1)
@@ -113,6 +141,9 @@ return {
             table.insert(content, formatted)
           end
           vim.api.nvim_buf_set_lines(0, 0, -1, false, content)
+
+          -- Move cursor to "Root Cause"
+          vim.cmd("normal 8G$")
         end)
       end
     end,
