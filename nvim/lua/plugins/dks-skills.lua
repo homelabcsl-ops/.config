@@ -4,7 +4,7 @@ return {
     "ThePrimeagen/vim-be-good",
     cmd = "VimBeGood",
     keys = {
-      { "<leader>tg", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
+      { "<leader>kg", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
     },
   },
 
@@ -14,7 +14,7 @@ return {
     cmd = "Speedtyper",
     branch = "main",
     keys = {
-      { "<leader>tt", "<cmd>Speedtyper<cr>", desc = "Skill: Throughput (Speedtyper)" },
+      { "<leader>ks", "<cmd>Speedtyper<cr>", desc = "Skill: Throughput (Speedtyper)" },
     },
     opts = {
       game_modes = {
