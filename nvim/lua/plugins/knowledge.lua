@@ -121,6 +121,17 @@ return {
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },
+      -- === NEW CONFIGURATION: Custom Note IDs ===
+      -- This function forces Obsidian to use the title exactly as typed,
+      -- preventing random timestamps (Zettelkasten IDs).
+      note_id_func = function(title)
+        if title then
+          return title
+        else
+          return tostring(os.time())
+        end
+      end,
+      -- ===========================================
       ui = {
         enable = true,
         update_debounce = 200,
