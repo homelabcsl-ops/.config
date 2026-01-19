@@ -117,7 +117,7 @@ return {
         min_chars = 2,
       },
       templates = {
-        subdir = "01-Admin/Templates",
+        subdir = "99-Resources/Templates",
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },
