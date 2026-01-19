@@ -65,7 +65,7 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     keys = {
-      -- JD Automation Logic
+      -- JD Automation Logic (Primary)
       {
         "<leader>oj",
         function()
@@ -92,8 +92,13 @@ return {
         end,
         desc = "Switch Workspace",
       },
-      -- Standard Keys
-      { "<leader>on", "<cmd>ObsidianNew<cr>", desc = "New Note (Default)" },
+      -- Standard Keys (Remapped for Consistency)
+      {        "<leader>on",
+        function()
+          _G.create_jd_note()
+        end,
+        desc = "New Note (JD Wizard)"
+      },
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
       { "<leader>ot", "<cmd>ObsidianTemplate<cr>", desc = "Insert Template" },
@@ -121,9 +126,7 @@ return {
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },
-      -- === NEW CONFIGURATION: Custom Note IDs ===
-      -- This function forces Obsidian to use the title exactly as typed,
-      -- preventing random timestamps (Zettelkasten IDs).
+      -- === CUSTOM NOTE IDs ===
       note_id_func = function(title)
         if title then
           return title
@@ -131,7 +134,7 @@ return {
           return tostring(os.time())
         end
       end,
-      -- ===========================================
+      -- =======================
       ui = {
         enable = true,
         update_debounce = 200,
@@ -254,7 +257,7 @@ return {
 
         local area_options = {}
         for _, dir in ipairs(areas) do
-          table.insert(area_options, vim.fn.fnamemodify(dir, ":t"))
+          table.insert(area_options, vim.fn.fnamemodify(dir, ":t") .. "/")
         end
         table.sort(area_options)
 
@@ -262,6 +265,8 @@ return {
           if not area_choice then
             return
           end
+          -- Strip trailing slash for path usage
+          area_choice = area_choice:sub(1, -2)
           local area_path = workspace_path .. "/" .. area_choice
 
           -- STEP 2: Intelligent Sub-Category Check
