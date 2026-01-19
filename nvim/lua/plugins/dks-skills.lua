@@ -29,7 +29,39 @@ return {
           border = "rounded",
         },
       },
+      -- FIX: Automatic Logging Hook
+      on_finish = function(stats)
+        local vault_path = vim.fn.expand("~/obsidian/devops")
+        local metric_file = vault_path .. "/10-DevOps-Lab/18-Observability/18.01 - metrics.md"
+
+        local date = os.date("%Y-%m-%d %H:%M:%S")
+        local wpm = stats.wpm or 0
+        local acc = stats.accuracy or 0
+        local log_entry = string.format("| %s | Speedtyper | %s WPM | %s%% |", date, wpm, acc)
+
+        local file = io.open(metric_file, "a")
+        if file then
+          file:write(log_entry .. "\n")
+          file:close()
+          vim.notify("✓ Speedtyper metrics auto-logged!", vim.log.levels.INFO)
+        else
+          vim.notify("⚠ ERROR: Could not write to " .. metric_file, vim.log.levels.ERROR)
+        end
+      end,
     },
+    -- FIX: Crash Prevention (Safety Shield)
+    config = function(_, opts)
+      require("speedtyper").setup(opts)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "speedtyper",
+        callback = function(event)
+          vim.b[event.buf].snacks_scroll = false
+          vim.b[event.buf].snacks_dim = false
+          vim.b[event.buf].snacks_animate = false
+          vim.b[event.buf].minianimate_disable = true
+        end,
+      })
+    end,
   },
 
   -- OBSERVABILITY LAYER: Telemetry Bridge
@@ -40,18 +72,18 @@ return {
       -- 1. DEFINE YOUR VAULT PATH
       -- IMPORTANT: Verify this path matches your actual Obsidian folder structure.
       local vault_path = vim.fn.expand("~/obsidian/devops")
-      -- UPDATED PATH: Aligned with LF Module 18
-      local metric_file = vault_path .. "/10-DevOps-Lab/18-Observability/metrics.md"
+      -- UPDATED PATH: Aligned with LF Module 18 (Fixed Filename)
+      local metric_file = vault_path .. "/10-DevOps-Lab/18-Observability/18.01 - metrics.md"
 
       -- 2. CREATE THE LOGGING COMMAND
       vim.api.nvim_create_user_command("LogSkill", function()
         -- Prompt the user for the score using the Snacks UI
-        vim.ui.input({ prompt = "Enter Skill Metric (e.g., 'VimBeGood: 450ms' or 'WPM: 95'): " }, function(input)
+        vim.ui.input({ prompt = "Enter Skill Metric (e.g., 'VimBeGood: 450ms'): " }, function(input)
           if input and input ~= "" then
             -- Create the timestamp
             local date = os.date("%Y-%m-%d %H:%M:%S")
             -- Format for Markdown Table
-            local log_entry = string.format("| %s | %s |", date, input)
+            local log_entry = string.format("| %s | Manual | %s | - |", date, input)
 
             -- Write to the file
             local file = io.open(metric_file, "a")
