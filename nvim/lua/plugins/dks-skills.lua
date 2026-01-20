@@ -9,70 +9,27 @@ return {
     },
   },
 
-  -- SERVICE 2: Speedtyper (Throughput Training)
-  {
-    "NStefan002/speedtyper.nvim",
-    cmd = "Speedtyper",
-    branch = "main",
-    keys = {
-      { "<leader>ks", "<cmd>Speedtyper<cr>", desc = "Skill: Throughput (Speedtyper)" },
-    },
-    opts = {
-      game_modes = {
-        -- Automate window layout to ensure focus
-        window_config = {
-          relative = "editor",
-          width = 0.6,
-          height = 0.6,
-          col = 0.2,
-          row = 0.2,
-          style = "minimal",
-          border = "rounded",
-        },
-      },
-      -- FIX: Automatic Logging Hook with Directory Safety
-      on_finish = function(stats)
-        local vault_path = vim.fn.expand("~/obsidian/devops")
-        local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
-        local metric_file = obs_folder .. "/18.01 - metrics.md"
-
-        -- Safety: Ensure directory exists before writing
-        vim.fn.mkdir(obs_folder, "p")
-
-        local date = os.date("%Y-%m-%d %H:%M:%S")
-        local wpm = stats.wpm or 0
-        local acc = stats.accuracy or 0
-        local log_entry = string.format("| %s | Speedtyper | %s WPM | %s%% |", date, wpm, acc)
-
-        local file = io.open(metric_file, "a")
-        if file then
-          file:write(log_entry .. "\n")
-          file:close()
-          vim.notify("✓ Speedtyper metrics auto-logged!", vim.log.levels.INFO)
-        else
-          vim.notify("⚠ ERROR: Could not write to " .. metric_file, vim.log.levels.ERROR)
-        end
-      end,
-    },
-    -- FIX: Crash Prevention (Safety Shield)
-    config = function(_, opts)
-      require("speedtyper").setup(opts)
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "speedtyper",
-        callback = function(event)
-          vim.b[event.buf].snacks_scroll = false
-          vim.b[event.buf].snacks_dim = false
-          vim.b[event.buf].snacks_animate = false
-          vim.b[event.buf].minianimate_disable = true
-        end,
-      })
-    end,
-  },
-
-  -- OBSERVABILITY LAYER: Telemetry Bridge
-  -- Uses `folke/snacks` (standard in LazyVim) to handle user input
+  -- SERVICE 2: Terminal Skills (Replaces Speedtyper)
+  -- Uses `folke/snacks` to launch your system binaries in a floating terminal
   {
     "folke/snacks.nvim",
+    keys = {
+      {
+        "<leader>kt",
+        function()
+          Snacks.terminal("ttyper")
+        end,
+        desc = "Skill: Code Syntax (Ttyper)",
+      },
+      -- Reusing <leader>ks key for Gtypist to avoid <leader>kg conflict
+      {
+        "<leader>ks",
+        function()
+          Snacks.terminal("gtypist")
+        end,
+        desc = "Skill: Touch Typing (Gtypist)",
+      },
+    },
     opts = function(_, opts)
       -- 1. DEFINE YOUR VAULT PATH
       local vault_path = vim.fn.expand("~/obsidian/devops")
@@ -82,7 +39,8 @@ return {
       -- 2. CREATE THE LOGGING COMMAND
       vim.api.nvim_create_user_command("LogSkill", function()
         -- Prompt the user for the score using the Snacks UI
-        vim.ui.input({ prompt = "Enter Skill Metric (e.g., 'VimBeGood: 450ms'): " }, function(input)
+        -- Updated prompt example to match new tools
+        vim.ui.input({ prompt = "Enter Skill Metric (e.g., 'Ttyper: 98% acc'): " }, function(input)
           if input and input ~= "" then
             -- Safety: Ensure directory exists
             vim.fn.mkdir(obs_folder, "p")
