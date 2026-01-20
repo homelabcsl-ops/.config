@@ -4,7 +4,8 @@ return {
     "ThePrimeagen/vim-be-good",
     cmd = "VimBeGood",
     keys = {
-      { "<leader>kg", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
+      -- FIX: Remapped to <leader>kv to avoid conflict with Grep (<leader>kg)
+      { "<leader>kv", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
     },
   },
 
@@ -29,10 +30,14 @@ return {
           border = "rounded",
         },
       },
-      -- FIX: Automatic Logging Hook
+      -- FIX: Automatic Logging Hook with Directory Safety
       on_finish = function(stats)
         local vault_path = vim.fn.expand("~/obsidian/devops")
-        local metric_file = vault_path .. "/10-DevOps-Lab/18-Observability/18.01 - metrics.md"
+        local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
+        local metric_file = obs_folder .. "/18.01 - metrics.md"
+
+        -- Safety: Ensure directory exists before writing
+        vim.fn.mkdir(obs_folder, "p")
 
         local date = os.date("%Y-%m-%d %H:%M:%S")
         local wpm = stats.wpm or 0
@@ -70,16 +75,18 @@ return {
     "folke/snacks.nvim",
     opts = function(_, opts)
       -- 1. DEFINE YOUR VAULT PATH
-      -- IMPORTANT: Verify this path matches your actual Obsidian folder structure.
       local vault_path = vim.fn.expand("~/obsidian/devops")
-      -- UPDATED PATH: Aligned with LF Module 18 (Fixed Filename)
-      local metric_file = vault_path .. "/10-DevOps-Lab/18-Observability/18.01 - metrics.md"
+      local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
+      local metric_file = obs_folder .. "/18.01 - metrics.md"
 
       -- 2. CREATE THE LOGGING COMMAND
       vim.api.nvim_create_user_command("LogSkill", function()
         -- Prompt the user for the score using the Snacks UI
         vim.ui.input({ prompt = "Enter Skill Metric (e.g., 'VimBeGood: 450ms'): " }, function(input)
           if input and input ~= "" then
+            -- Safety: Ensure directory exists
+            vim.fn.mkdir(obs_folder, "p")
+
             -- Create the timestamp
             local date = os.date("%Y-%m-%d %H:%M:%S")
             -- Format for Markdown Table
