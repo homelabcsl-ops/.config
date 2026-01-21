@@ -1,3 +1,31 @@
+-- 1. GLOBAL LOGGING FUNCTION (Moved to top for scope safety)
+-- This ensures the function exists before the keys try to call it.
+_G.dks_log_skill = function(tool_name)
+  -- Path definitions moved inside to ensure they are accessible
+  local vault_path = vim.fn.expand("~/obsidian/devops")
+  local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
+  local metric_file = obs_folder .. "/18.01 - metrics.md"
+
+  vim.ui.input({ prompt = "Enter " .. tool_name .. " Metrics (e.g. '98% / 60wpm'): " }, function(input)
+    if input and input ~= "" then
+      -- Safety: Ensure directory exists
+      vim.fn.mkdir(obs_folder, "p")
+
+      local date = os.date("%Y-%m-%d %H:%M:%S")
+      local log_entry = string.format("| %s | %s | %s | - |", date, tool_name, input)
+
+      local file = io.open(metric_file, "a")
+      if file then
+        file:write(log_entry .. "\n")
+        file:close()
+        vim.notify("✓ Logged to DKS", vim.log.levels.INFO)
+      else
+        vim.notify("⚠ ERROR: Could not find " .. metric_file .. ". Check your path.", vim.log.levels.ERROR)
+      end
+    end
+  end)
+end
+
 return {
   -- SERVICE 1: VimBeGood (Precision Training)
   {
@@ -9,7 +37,7 @@ return {
     },
   },
 
-  -- SERVICE 2: Terminal Skills (Replaces Speedtyper)
+  -- SERVICE 2: Terminal Skills (Automated Hooks)
   -- Uses `folke/snacks` to launch your system binaries in a floating terminal
   {
     "folke/snacks.nvim",
@@ -45,37 +73,8 @@ return {
       },
     },
     opts = function(_, opts)
-      -- 1. DEFINE YOUR VAULT PATH
-      local vault_path = vim.fn.expand("~/obsidian/devops")
-      local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
-      local metric_file = obs_folder .. "/18.01 - metrics.md"
-
-      -- 2. CORE LOGGING FUNCTION (Global helper for hooks)
-      _G.dks_log_skill = function(tool_name)
-        vim.ui.input({ prompt = "Enter " .. tool_name .. " Metrics (e.g. '98% / 60wpm'): " }, function(input)
-          if input and input ~= "" then
-            -- Safety: Ensure directory exists
-            vim.fn.mkdir(obs_folder, "p")
-
-            -- Create the timestamp
-            local date = os.date("%Y-%m-%d %H:%M:%S")
-            -- Format for Markdown Table
-            local log_entry = string.format("| %s | %s | %s | - |", date, tool_name, input)
-
-            -- Write to the file
-            local file = io.open(metric_file, "a")
-            if file then
-              file:write(log_entry .. "\n")
-              file:close()
-              vim.notify("✓ Logged to DKS", vim.log.levels.INFO)
-            else
-              vim.notify("⚠ ERROR: Could not find " .. metric_file .. ". Check your path.", vim.log.levels.ERROR)
-            end
-          end
-        end)
-      end
-
       -- 3. CREATE THE LOGGING COMMAND (Manual Override)
+      -- The logic is now handled by the global function at the top
       vim.api.nvim_create_user_command("LogSkill", function(args)
         local tool = args.args ~= "" and args.args or "Manual"
         _G.dks_log_skill(tool)
