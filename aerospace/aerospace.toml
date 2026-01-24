@@ -95,3 +95,7 @@ run = 'move-node-to-workspace 4'
 esc = 'mode main'
 r = ['reload-config', 'mode main']
 backspace = ['close-all-windows-but-current', 'mode main']
+
+[[on-window-detected]]
+if.window-title-regex-substring = 'IPAD_SERVER'
+run = 'move-node-to-workspace 5'
