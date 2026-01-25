@@ -93,11 +93,12 @@ return {
         desc = "Switch Workspace",
       },
       -- Standard Keys (Remapped for Consistency)
-      {        "<leader>on",
+      {
+        "<leader>on",
         function()
           _G.create_jd_note()
         end,
-        desc = "New Note (JD Wizard)"
+        desc = "New Note (JD Wizard)",
       },
       { "<leader>oo", "<cmd>ObsidianSearch<cr>", desc = "Search Knowledge" },
       { "<leader>os", "<cmd>ObsidianQuickSwitch<cr>", desc = "Switch Note" },
