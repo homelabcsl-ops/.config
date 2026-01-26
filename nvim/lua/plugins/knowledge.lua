@@ -108,7 +108,7 @@ return {
       daily_notes = {
         folder = "00-Inbox",
         date_format = "%Y-%m-%d",
-        template = "daily-note.md",
+        template = "99.01 - Daily-Notes.md",
       },
       attachments = {
         img_folder = "Assets",
