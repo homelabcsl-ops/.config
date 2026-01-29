@@ -120,6 +120,8 @@ return {
             daily_notes = {
               folder = "00-Inbox/02-Daily",
               template = "99.01 - Daily Notes.md",
+              -- STRICT UPDATE: Enforce 02 prefix in filename
+              date_format = "02.%Y-%m-%d",
             },
             templates = {
               subdir = "99-Resources/99-Templates",
@@ -135,6 +137,8 @@ return {
             daily_notes = {
               folder = "00-Inbox/02-Daily",
               template = "99.01 - Daily Notes.md",
+              -- STRICT UPDATE: Enforce 02 prefix in filename
+              date_format = "02.%Y-%m-%d",
             },
             templates = {
               subdir = "99-Resources/99-Templates",
@@ -146,7 +150,8 @@ return {
       },
       daily_notes = {
         folder = "00-Inbox/02-Daily",
-        date_format = "%Y-%m-%d",
+        -- STRICT UPDATE: Global fallback
+        date_format = "02.%Y-%m-%d",
         template = "99.01 - Daily Notes.md",
       },
       attachments = {
