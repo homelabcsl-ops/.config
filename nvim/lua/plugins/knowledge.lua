@@ -63,6 +63,17 @@ return {
       "nvim-treesitter/nvim-treesitter",
     },
     keys = {
+      -- NEW: Timestamp Macro
+      {
+        "<leader>on",
+        function()
+          local time = os.date("%H:%M")
+          -- Inserts "#### HH:MM - " and switches to Insert Mode
+          vim.api.nvim_put({ "#### " .. time .. " - " }, "c", true, true)
+          vim.cmd("startinsert!")
+        end,
+        desc = "Insert Timestamp",
+      },
       -- JD Automation Logic
       {
         "<leader>oj",
@@ -107,11 +118,11 @@ return {
           path = "~/obsidian/personal",
           overrides = {
             daily_notes = {
-              folder = "00-Inbox/02-Daily", -- SYMMETRY: Matches DevOps
+              folder = "00-Inbox/02-Daily",
               template = "99.01 - Daily Notes.md",
             },
             templates = {
-              subdir = "99-Resources/99-Templates", -- CORRECTED: Moved out of Admin to mirror DevOps
+              subdir = "99-Resources/99-Templates",
               date_format = "%Y-%m-%d",
               time_format = "%H:%M",
             },
@@ -122,11 +133,11 @@ return {
           path = "~/obsidian/devops",
           overrides = {
             daily_notes = {
-              folder = "00-Inbox/02-Daily", -- SYMMETRY: Matches Personal
+              folder = "00-Inbox/02-Daily",
               template = "99.01 - Daily Notes.md",
             },
             templates = {
-              subdir = "99-Resources/99-Templates", -- SYMMETRY: Safe Namespace (99)
+              subdir = "99-Resources/99-Templates",
               date_format = "%Y-%m-%d",
               time_format = "%H:%M",
             },
@@ -139,10 +150,10 @@ return {
         template = "99.01 - Daily Notes.md",
       },
       attachments = {
-        img_folder = "00-Inbox/01-Assets", -- UPDATED: All images go to 01-Assets
+        img_folder = "00-Inbox/01-Assets",
       },
       templates = {
-        subdir = "99-Resources", -- Fallback
+        subdir = "99-Resources",
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },
@@ -281,7 +292,7 @@ return {
     opts = {
       default = {
         prompt_for_file_name = true,
-        dir_path = "00-Inbox/01-Assets", -- UPDATED: Points to new strict Assets folder
+        dir_path = "00-Inbox/01-Assets",
       },
     },
   },
