@@ -102,19 +102,47 @@ return {
     },
     opts = {
       workspaces = {
-        { name = "personal", path = "~/obsidian/personal" },
-        { name = "devops", path = "~/obsidian/devops" },
+        {
+          name = "personal",
+          path = "~/obsidian/personal",
+          overrides = {
+            daily_notes = {
+              folder = "00-Inbox/02-Daily", -- SYMMETRY: Matches DevOps
+              template = "99.01 - Daily Notes.md",
+            },
+            templates = {
+              subdir = "01-Admin/99-Templates", -- SYMMETRY: Safe Namespace (99)
+              date_format = "%Y-%m-%d",
+              time_format = "%H:%M",
+            },
+          },
+        },
+        {
+          name = "devops",
+          path = "~/obsidian/devops",
+          overrides = {
+            daily_notes = {
+              folder = "00-Inbox/02-Daily", -- SYMMETRY: Matches Personal
+              template = "99.01 - Daily Notes.md",
+            },
+            templates = {
+              subdir = "99-Resources/99-Templates", -- SYMMETRY: Safe Namespace (99)
+              date_format = "%Y-%m-%d",
+              time_format = "%H:%M",
+            },
+          },
+        },
       },
       daily_notes = {
-        folder = "00-Inbox",
+        folder = "00-Inbox/02-Daily",
         date_format = "%Y-%m-%d",
-        template = "99.01 - Daily Notes.md", -- FIXED: Matches your actual filename
+        template = "99.01 - Daily Notes.md",
       },
       attachments = {
-        img_folder = "Assets",
+        img_folder = "00-Inbox/01-Assets", -- UPDATED: All images go to 01-Assets
       },
       templates = {
-        subdir = "99-Resources/Templates",
+        subdir = "99-Resources", -- Fallback
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },
@@ -132,13 +160,14 @@ return {
     config = function(_, opts)
       require("obsidian").setup(opts)
 
-      -- JD Auto-Allocator Logic
+      -- JD Auto-Allocator Logic (Strict Mode)
       _G.create_jd_note = function()
         local obs_client = require("obsidian").get_client()
         local workspace_path = vim.fs.normalize(obs_client.dir.filename)
         local vault_name = obs_client.current_workspace.name
         local scan = require("plenary.scandir")
 
+        -- STRICT Helper: ID is derived ONLY from the folder prefix
         local function create_note_in_category(category_path, category_folder_name)
           local category_id = category_folder_name:match("^(%d%d)") or "00"
           local max_index = 0
@@ -205,6 +234,7 @@ return {
         local area_options = {}
         for _, dir in ipairs(areas) do
           local name = vim.fn.fnamemodify(dir, ":t")
+          -- STRICT: Only add Areas starting with digits (e.g. 10-DevOps)
           if name:match("^%d%d%-") then
             table.insert(area_options, name .. "/")
           end
@@ -220,6 +250,7 @@ return {
           local cat_options = {}
           for _, dir in ipairs(categories) do
             local name = vim.fn.fnamemodify(dir, ":t")
+            -- STRICT: Only add Categories starting with digits (e.g. 11-General)
             if name:match("^%d%d%-") then
               table.insert(cat_options, name)
             end
@@ -250,7 +281,7 @@ return {
     opts = {
       default = {
         prompt_for_file_name = true,
-        dir_path = "Assets",
+        dir_path = "00-Inbox/01-Assets", -- UPDATED: Points to new strict Assets folder
       },
     },
   },
