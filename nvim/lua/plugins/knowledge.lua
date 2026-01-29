@@ -111,7 +111,7 @@ return {
               template = "99.01 - Daily Notes.md",
             },
             templates = {
-              subdir = "01-Admin/99-Templates", -- SYMMETRY: Safe Namespace (99)
+              subdir = "99-Resources/99-Templates", -- CORRECTED: Moved out of Admin to mirror DevOps
               date_format = "%Y-%m-%d",
               time_format = "%H:%M",
             },
