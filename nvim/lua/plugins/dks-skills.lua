@@ -1,25 +1,18 @@
 -- 1. GLOBAL LOGGING FUNCTION
--- Handles the file writing logic centrally to ensure consistency.
 _G.dks_log_skill = function(tool_name)
-  -- DEFINED PATHS (Mac Mini / Obsidian Structure)
   local vault_path = vim.fn.expand("~/obsidian/devops")
   local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
   local metric_file = obs_folder .. "/18.01 - metrics.md"
 
-  -- Prompt for the score immediately (Frictionless entry)
   vim.ui.input({ prompt = "Enter " .. tool_name .. " Result (e.g. '98% / 60wpm'): " }, function(input)
     if input and input ~= "" then
-      -- 1. Ensure the directory exists
       if vim.fn.isdirectory(obs_folder) == 0 then
         vim.fn.mkdir(obs_folder, "p")
       end
 
-      -- 2. Format the Log Entry
       local date = os.date("%Y-%m-%d %H:%M:%S")
-      -- Format: | Date | Tool | Score | Notes |
       local log_entry = string.format("| %s | %s | %s | - |", date, tool_name, input)
 
-      -- 3. Append to File
       local file = io.open(metric_file, "a")
       if file then
         file:write(log_entry .. "\n")
@@ -32,6 +25,34 @@ _G.dks_log_skill = function(tool_name)
   end)
 end
 
+-- 2. HELPER: Launch Terminal & Attach Listener
+-- This replaces the failed 'on_close' parameter with a native 'TermClose' event.
+local function launch_tool(cmd, name)
+  -- Open the tool
+  Snacks.terminal(cmd, { interactive = true })
+
+  -- Wait a split second to ensure the buffer is active, then attach listener
+  vim.schedule(function()
+    local term_buf = vim.api.nvim_get_current_buf()
+
+    vim.api.nvim_create_autocmd("TermClose", {
+      buffer = term_buf,
+      once = true,
+      callback = function()
+        -- 1. Close the terminal window immediately so it doesn't block the view
+        -- (Pressing keys might be needed depending on your shell settings,
+        -- but this ensures we try to tidy up)
+        pcall(vim.api.nvim_win_close, 0, true)
+
+        -- 2. Trigger the log prompt
+        vim.schedule(function()
+          _G.dks_log_skill(name)
+        end)
+      end,
+    })
+  end)
+end
+
 return {
   -- SERVICE 1: VimBeGood (Precision Training)
   {
@@ -41,7 +62,6 @@ return {
         "<leader>kv",
         function()
           vim.cmd("VimBeGood")
-          -- Listener for when the VimBeGood buffer closes
           vim.api.nvim_create_autocmd("BufWinLeave", {
             pattern = "*",
             once = true,
@@ -63,43 +83,26 @@ return {
   {
     "folke/snacks.nvim",
     keys = {
-      -- RE-ADDED: Ttyper with Automation
       {
         "<leader>kt",
         function()
-          Snacks.terminal("ttyper", {
-            on_close = function()
-              vim.schedule(function()
-                _G.dks_log_skill("Ttyper")
-              end)
-            end,
-          })
+          launch_tool("ttyper", "Ttyper")
         end,
         desc = "Skill: Code Syntax (Ttyper)",
       },
-
-      -- Gtypist Configuration
       {
         "<leader>ks",
         function()
-          Snacks.terminal("gtypist", {
-            on_close = function()
-              vim.schedule(function()
-                _G.dks_log_skill("Gtypist")
-              end)
-            end,
-          })
+          launch_tool("gtypist", "Gtypist")
         end,
         desc = "Skill: Touch Typing (Gtypist)",
       },
     },
     opts = function(_, opts)
-      -- Manual Override Command
       vim.api.nvim_create_user_command("LogSkill", function(args)
         local tool = args.args ~= "" and args.args or "Manual Entry"
         _G.dks_log_skill(tool)
       end, { nargs = "?", desc = "Manually log a skill metric to Obsidian" })
-
       return opts
     end,
   },
