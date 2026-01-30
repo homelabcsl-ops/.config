@@ -4,27 +4,27 @@ _G.dks_log_skill = function(tool_name)
   local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
   local metric_file = obs_folder .. "/18.01 - metrics.md"
 
-  -- Using vim.schedule to ensure the prompt renders cleanly after terminal closes
-  vim.schedule(function()
-    vim.ui.input({ prompt = "Enter " .. tool_name .. " Result (e.g. '98% / 60wpm'): " }, function(input)
-      if input and input ~= "" then
-        if vim.fn.isdirectory(obs_folder) == 0 then
-          vim.fn.mkdir(obs_folder, "p")
-        end
+  -- Force Normal mode to ensure we aren't stuck in Terminal/Insert mode
+  vim.cmd("stopinsert")
 
-        local date = os.date("%Y-%m-%d %H:%M:%S")
-        local log_entry = string.format("| %s | %s | %s | - |", date, tool_name, input)
-
-        local file = io.open(metric_file, "a")
-        if file then
-          file:write(log_entry .. "\n")
-          file:close()
-          vim.notify("✓ Saved to 18.01 - metrics.md", vim.log.levels.INFO)
-        else
-          vim.notify("⚠ ERROR: Could not write to " .. metric_file, vim.log.levels.ERROR)
-        end
+  vim.ui.input({ prompt = "Enter " .. tool_name .. " Result (e.g. '98% / 60wpm'): " }, function(input)
+    if input and input ~= "" then
+      if vim.fn.isdirectory(obs_folder) == 0 then
+        vim.fn.mkdir(obs_folder, "p")
       end
-    end)
+
+      local date = os.date("%Y-%m-%d %H:%M:%S")
+      local log_entry = string.format("| %s | %s | %s | - |", date, tool_name, input)
+
+      local file = io.open(metric_file, "a")
+      if file then
+        file:write(log_entry .. "\n")
+        file:close()
+        vim.notify("✓ Saved to 18.01 - metrics.md", vim.log.levels.INFO)
+      else
+        vim.notify("⚠ ERROR: Could not write to " .. metric_file, vim.log.levels.ERROR)
+      end
+    end
   end)
 end
 
@@ -37,13 +37,15 @@ return {
         "<leader>kv",
         function()
           vim.cmd("VimBeGood")
-          -- Listener for when the VimBeGood buffer closes
           vim.api.nvim_create_autocmd("BufWinLeave", {
             pattern = "*",
             once = true,
             callback = function()
               if vim.bo.filetype == "vimbegood" or vim.bo.filetype == "" then
-                _G.dks_log_skill("VimBeGood")
+                -- Small delay for VimBeGood too, just to be safe
+                vim.defer_fn(function()
+                  _G.dks_log_skill("VimBeGood")
+                end, 100)
               end
             end,
           })
@@ -56,22 +58,24 @@ return {
   -- SERVICE 2: Terminal Skills (Ttyper & Gtypist)
   {
     "folke/snacks.nvim",
-    -- We use 'init' to set up the global listener BEFORE any keys are pressed
     init = function()
       vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "term://*", -- Listen to ALL terminal closures
+        pattern = "term://*",
         callback = function(args)
-          -- Get the buffer name (which contains the command run)
           local buf_name = vim.api.nvim_buf_get_name(args.buf)
 
-          -- Check if the buffer name matches our tools
           if string.find(buf_name, "ttyper") then
-            -- Close the finished terminal window so it doesn't block the view
             pcall(vim.api.nvim_win_close, 0, true)
-            _G.dks_log_skill("Ttyper")
+            -- FIXED: Added 100ms delay to allow keyboard focus to reset
+            vim.defer_fn(function()
+              _G.dks_log_skill("Ttyper")
+            end, 100)
           elseif string.find(buf_name, "gtypist") then
             pcall(vim.api.nvim_win_close, 0, true)
-            _G.dks_log_skill("Gtypist")
+            -- FIXED: Added 100ms delay
+            vim.defer_fn(function()
+              _G.dks_log_skill("Gtypist")
+            end, 100)
           end
         end,
       })
