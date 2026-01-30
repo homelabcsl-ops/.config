@@ -1,26 +1,32 @@
--- 1. GLOBAL LOGGING FUNCTION (Moved to top for scope safety)
--- This ensures the function exists before the keys try to call it.
+-- 1. GLOBAL LOGGING FUNCTION
+-- Handles the file writing logic centrally to ensure consistency.
 _G.dks_log_skill = function(tool_name)
-  -- Path definitions moved inside to ensure they are accessible
+  -- DEFINED PATHS (Mac Mini / Obsidian Structure)
   local vault_path = vim.fn.expand("~/obsidian/devops")
   local obs_folder = vault_path .. "/10-DevOps-Lab/18-Observability"
   local metric_file = obs_folder .. "/18.01 - metrics.md"
 
-  vim.ui.input({ prompt = "Enter " .. tool_name .. " Metrics (e.g. '98% / 60wpm'): " }, function(input)
+  -- Prompt for the score immediately (Frictionless entry)
+  vim.ui.input({ prompt = "Enter " .. tool_name .. " Result (e.g. '98% / 60wpm'): " }, function(input)
     if input and input ~= "" then
-      -- Safety: Ensure directory exists
-      vim.fn.mkdir(obs_folder, "p")
+      -- 1. Ensure the directory exists
+      if vim.fn.isdirectory(obs_folder) == 0 then
+        vim.fn.mkdir(obs_folder, "p")
+      end
 
+      -- 2. Format the Log Entry
       local date = os.date("%Y-%m-%d %H:%M:%S")
+      -- Format: | Date | Tool | Score | Notes |
       local log_entry = string.format("| %s | %s | %s | - |", date, tool_name, input)
 
+      -- 3. Append to File
       local file = io.open(metric_file, "a")
       if file then
         file:write(log_entry .. "\n")
         file:close()
-        vim.notify("✓ Logged to DKS", vim.log.levels.INFO)
+        vim.notify("✓ Saved to 18.01 - metrics.md", vim.log.levels.INFO)
       else
-        vim.notify("⚠ ERROR: Could not find " .. metric_file .. ". Check your path.", vim.log.levels.ERROR)
+        vim.notify("⚠ ERROR: Could not write to " .. metric_file, vim.log.levels.ERROR)
       end
     end
   end)
@@ -30,38 +36,43 @@ return {
   -- SERVICE 1: VimBeGood (Precision Training)
   {
     "ThePrimeagen/vim-be-good",
-    cmd = "VimBeGood",
-    keys = {
-      -- FIX: Remapped to <leader>kv to avoid conflict with Grep (<leader>kg)
-      { "<leader>kv", "<cmd>VimBeGood<cr>", desc = "Skill: Precision (VimBeGood)" },
-    },
-  },
-
-  -- SERVICE 2: Terminal Skills (Automated Hooks)
-  -- Uses `folke/snacks` to launch your system binaries in a floating terminal
-  {
-    "folke/snacks.nvim",
     keys = {
       {
-        "<leader>kt",
+        "<leader>kv",
         function()
-          -- Added on_close hook for automation
-          Snacks.terminal("ttyper", {
-            on_close = function()
-              vim.schedule(function()
-                _G.dks_log_skill("Ttyper")
-              end)
+          -- 1. Launch VimBeGood
+          vim.cmd("VimBeGood")
+
+          -- 2. Create a "One-Shot" listener for when the VimBeGood buffer closes
+          vim.api.nvim_create_autocmd("BufWinLeave", {
+            pattern = "*",
+            once = true,
+            callback = function()
+              -- Check if the buffer being closed is actually VimBeGood
+              if vim.bo.filetype == "vimbegood" or vim.bo.filetype == "" then
+                -- Schedule the prompt to appear after the window cleanly closes
+                vim.schedule(function()
+                  _G.dks_log_skill("VimBeGood")
+                end)
+              end
             end,
           })
         end,
-        desc = "Skill: Code Syntax (Ttyper)",
+        desc = "Skill: Precision (VimBeGood)",
       },
-      -- Reusing <leader>ks key for Gtypist to avoid <leader>kg conflict
+    },
+  },
+
+  -- SERVICE 2: Terminal Skills (Gtypist)
+  {
+    "folke/snacks.nvim",
+    keys = {
+      -- Gtypist Configuration
       {
         "<leader>ks",
         function()
-          -- Added on_close hook for automation
           Snacks.terminal("gtypist", {
+            -- Automation: Triggers when you quit gtypist (press Q or Esc)
             on_close = function()
               vim.schedule(function()
                 _G.dks_log_skill("Gtypist")
@@ -73,12 +84,11 @@ return {
       },
     },
     opts = function(_, opts)
-      -- 3. CREATE THE LOGGING COMMAND (Manual Override)
-      -- The logic is now handled by the global function at the top
+      -- Manual Override Command: :LogSkill "ToolName"
       vim.api.nvim_create_user_command("LogSkill", function(args)
-        local tool = args.args ~= "" and args.args or "Manual"
+        local tool = args.args ~= "" and args.args or "Manual Entry"
         _G.dks_log_skill(tool)
-      end, { nargs = "?", desc = "Log skill metrics to Obsidian" })
+      end, { nargs = "?", desc = "Manually log a skill metric to Obsidian" })
 
       return opts
     end,
