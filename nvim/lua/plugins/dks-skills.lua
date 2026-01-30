@@ -40,17 +40,13 @@ return {
       {
         "<leader>kv",
         function()
-          -- 1. Launch VimBeGood
           vim.cmd("VimBeGood")
-
-          -- 2. Create a "One-Shot" listener for when the VimBeGood buffer closes
+          -- Listener for when the VimBeGood buffer closes
           vim.api.nvim_create_autocmd("BufWinLeave", {
             pattern = "*",
             once = true,
             callback = function()
-              -- Check if the buffer being closed is actually VimBeGood
               if vim.bo.filetype == "vimbegood" or vim.bo.filetype == "" then
-                -- Schedule the prompt to appear after the window cleanly closes
                 vim.schedule(function()
                   _G.dks_log_skill("VimBeGood")
                 end)
@@ -63,16 +59,30 @@ return {
     },
   },
 
-  -- SERVICE 2: Terminal Skills (Gtypist)
+  -- SERVICE 2: Terminal Skills (Ttyper & Gtypist)
   {
     "folke/snacks.nvim",
     keys = {
+      -- RE-ADDED: Ttyper with Automation
+      {
+        "<leader>kt",
+        function()
+          Snacks.terminal("ttyper", {
+            on_close = function()
+              vim.schedule(function()
+                _G.dks_log_skill("Ttyper")
+              end)
+            end,
+          })
+        end,
+        desc = "Skill: Code Syntax (Ttyper)",
+      },
+
       -- Gtypist Configuration
       {
         "<leader>ks",
         function()
           Snacks.terminal("gtypist", {
-            -- Automation: Triggers when you quit gtypist (press Q or Esc)
             on_close = function()
               vim.schedule(function()
                 _G.dks_log_skill("Gtypist")
@@ -84,7 +94,7 @@ return {
       },
     },
     opts = function(_, opts)
-      -- Manual Override Command: :LogSkill "ToolName"
+      -- Manual Override Command
       vim.api.nvim_create_user_command("LogSkill", function(args)
         local tool = args.args ~= "" and args.args or "Manual Entry"
         _G.dks_log_skill(tool)
