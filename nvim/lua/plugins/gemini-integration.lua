@@ -9,7 +9,8 @@ return {
       require("codecompanion").setup({
         -- 1. THE DEVOPS PERSONA (System Prompt)
         opts = {
-          system_prompt = function(default)
+          -- FIX: Removed 'default' argument to silence the "Unused local" warning
+          system_prompt = function()
             return [[
 You are a Senior DevOps Engineer and expert Lua developer assisting a user in a professional "Frictionless" Neovim environment (DKS). 
 
@@ -27,18 +28,21 @@ Your Constraints:
           end,
         },
 
-        -- 2. STRATEGIES (How the AI interacts)
+        -- 2. STRATEGIES (Chat App Feel)
         strategies = {
-          -- Sidebar Chat (Like ChatGPT in your editor)
           chat = {
             adapter = "gemini",
+            -- FIX: Explicit Keymaps to force "Enter to Send"
+            keymaps = {
+              send = {
+                modes = { n = "<CR>", i = "<CR>" }, -- Press ENTER to Send
+              },
+              close = {
+                modes = { n = "q" }, -- Press q to Close (Normal mode only)
+              },
+            },
           },
-          -- Inline (Ghost Text / Diff View for code edits)
           inline = {
-            adapter = "gemini",
-          },
-          -- Agent (Can execute slash commands)
-          agent = {
             adapter = "gemini",
           },
         },
@@ -48,12 +52,11 @@ Your Constraints:
           gemini = function()
             return require("codecompanion.adapters").extend("gemini", {
               env = {
-                -- READS THE KEY FROM YOUR ZSH CONFIG
+                -- Hardcoded key as requested for testing
                 api_key = "AIzaSyAWfEt2w1-f4riHV4qlsi8ZjZe6UIGh6Qo",
               },
               schema = {
                 model = {
-                  -- Uses the high-performance Pro model
                   default = "gemini-1.5-pro",
                 },
               },
@@ -65,13 +68,9 @@ Your Constraints:
 
     -- 4. KEYBINDINGS
     keys = {
-      -- Action Palette (The "Do It" Menu)
       { "<leader>aa", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "AI Actions Palette" },
-      -- Chat (Sidebar)
       { "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle AI Chat" },
-      -- Inline Prompt (The "Ghost" Writer)
       { "<leader>ai", "<cmd>CodeCompanion<cr>", mode = { "n", "v" }, desc = "Inline Prompt (Diff)" },
-      -- Quick Workflows
       { "<leader>ad", "<cmd>CodeCompanion /buffer Explain this code<cr>", mode = "v", desc = "Explain Selection" },
       { "<leader>af", "<cmd>CodeCompanion /fix Fix this bug<cr>", mode = "v", desc = "Fix Selection" },
     },
