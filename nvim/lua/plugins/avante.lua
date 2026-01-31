@@ -8,7 +8,7 @@ return {
   version = false, -- Always use the latest version
   opts = {
     -- 1. PROVIDER: Switch to Google (Gemini)
-    provider = "google",
+    provider = "gemini",
     -- 2. GEMINI SPECIFIC SETTINGS
     google = {
       endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
