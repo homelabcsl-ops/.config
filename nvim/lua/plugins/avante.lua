@@ -12,7 +12,7 @@ return {
     -- 2. GEMINI SPECIFIC SETTINGS
     google = {
       endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-      model = "gemini-1.5-flash", -- Speed + Efficiency (Frictionless)
+      model = "gemini-1.5-pro", -- Speed + Efficiency (Frictionless)
       timeout = 30000, -- 30 seconds
       temperature = 0,
       max_tokens = 4096,
