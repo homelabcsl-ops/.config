@@ -46,7 +46,7 @@ Constraints: Direct answers. Modular code.
               schema = {
                 model = {
                   -- CRITICAL: Valid model name
-                  default = "gemini-1.5-flash",
+                  default = "gemini-1.5-pro",
                 },
               },
             })
