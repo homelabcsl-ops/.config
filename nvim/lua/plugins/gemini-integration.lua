@@ -49,7 +49,7 @@ Your Constraints:
             return require("codecompanion.adapters").extend("gemini", {
               env = {
                 -- READS THE KEY FROM YOUR ZSH CONFIG
-                api_key = "cmd:echo $GEMINI_API_KEY",
+                api_key = "AIzaSyAWfEt2w1-f4riHV4qlsi8ZjZe6UIGh6Qo",
               },
               schema = {
                 model = {
