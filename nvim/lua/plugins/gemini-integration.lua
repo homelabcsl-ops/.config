@@ -47,7 +47,7 @@ Constraints: Direct answers. Modular code. No fluff.
                 api_key = "AIzaSyAWfEt2w1-f4riHV4qlsi8ZjZe6UIGh6Qo",
               },
               schema = {
-                model = { default = "gemini-1.5-pro" },
+                model = { default = "gemini-1.5-flash" },
               },
             })
           end,
