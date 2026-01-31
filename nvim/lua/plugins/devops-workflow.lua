@@ -5,6 +5,7 @@ return {
     opts = {
       spec = {
         { "<leader>k", group = "devops-system", icon = "⚡" },
+        { "<leader>a", group = "ai-system", icon = "🤖" }, -- [NEW] AI Group Registered
       },
     },
   },
