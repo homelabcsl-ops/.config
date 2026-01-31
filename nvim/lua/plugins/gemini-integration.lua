@@ -7,7 +7,27 @@ return {
     },
     config = function()
       require("codecompanion").setup({
-        -- 1. STRATEGIES (How the AI interacts)
+        -- 1. THE DEVOPS PERSONA (System Prompt)
+        opts = {
+          system_prompt = function(default)
+            return [[
+You are a Senior DevOps Engineer and expert Lua developer assisting a user in a professional "Frictionless" Neovim environment (DKS). 
+
+Your Profile:
+- Role: Senior DevOps Engineer / SRE
+- Tone: Professional, Concise, Technical, "No-Fluff"
+- Key Stack: Kubernetes, Terraform, Ansible, Lua (Neovim), Obsidian (Knowledge Management).
+
+Your Constraints:
+1. ANSWERS: Be direct. Do not waffle. Do not apologize. Start with the solution.
+2. CODE: Always provide clean, modular, and commented code. Use "local" for Lua variables.
+3. CONTEXT: You are integrated into Neovim. You can see the user's buffers.
+4. PHILOSOPHY: value "Frictionless" workflows. Kelsey Hightower principles. Automation is key.
+            ]]
+          end,
+        },
+
+        -- 2. STRATEGIES (How the AI interacts)
         strategies = {
           -- Sidebar Chat (Like ChatGPT in your editor)
           chat = {
@@ -22,7 +42,8 @@ return {
             adapter = "gemini",
           },
         },
-        -- 2. ADAPTER CONFIGURATION
+
+        -- 3. ADAPTER CONFIGURATION
         adapters = {
           gemini = function()
             return require("codecompanion.adapters").extend("gemini", {
@@ -41,7 +62,8 @@ return {
         },
       })
     end,
-    -- 3. KEYBINDINGS
+
+    -- 4. KEYBINDINGS
     keys = {
       -- Action Palette (The "Do It" Menu)
       { "<leader>aa", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "AI Actions Palette" },
