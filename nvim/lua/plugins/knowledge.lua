@@ -68,7 +68,6 @@ return {
         "<leader>on",
         function()
           local time = os.date("%H:%M")
-          -- Inserts "#### HH:MM - " and switches to Insert Mode
           vim.api.nvim_put({ "#### " .. time .. " - " }, "c", true, true)
           vim.cmd("startinsert!")
         end,
@@ -120,8 +119,7 @@ return {
             daily_notes = {
               folder = "00-Inbox/02-Daily",
               template = "99.01 - Daily Notes.md",
-              -- STRICT UPDATE: Enforce 02 prefix in filename
-              date_format = "02.%Y-%m-%d",
+              date_format = "02.%Y-%m-%d", -- STRICT: Ensures 02.2026-02-03
             },
             templates = {
               subdir = "99-Resources/99-Templates",
@@ -137,8 +135,7 @@ return {
             daily_notes = {
               folder = "00-Inbox/02-Daily",
               template = "99.01 - Daily Notes.md",
-              -- STRICT UPDATE: Enforce 02 prefix in filename
-              date_format = "02.%Y-%m-%d",
+              date_format = "02.%Y-%m-%d", -- STRICT: Ensures 02.2026-02-03
             },
             templates = {
               subdir = "99-Resources/99-Templates",
@@ -150,7 +147,6 @@ return {
       },
       daily_notes = {
         folder = "00-Inbox/02-Daily",
-        -- STRICT UPDATE: Global fallback
         date_format = "02.%Y-%m-%d",
         template = "99.01 - Daily Notes.md",
       },
@@ -183,7 +179,6 @@ return {
         local vault_name = obs_client.current_workspace.name
         local scan = require("plenary.scandir")
 
-        -- STRICT Helper: ID is derived ONLY from the folder prefix
         local function create_note_in_category(category_path, category_folder_name)
           local category_id = category_folder_name:match("^(%d%d)") or "00"
           local max_index = 0
@@ -250,7 +245,7 @@ return {
         local area_options = {}
         for _, dir in ipairs(areas) do
           local name = vim.fn.fnamemodify(dir, ":t")
-          -- STRICT: Only add Areas starting with digits (e.g. 10-DevOps)
+          -- STRICT: Areas only. No special exclusion needed here usually.
           if name:match("^%d%d%-") then
             table.insert(area_options, name .. "/")
           end
@@ -266,10 +261,14 @@ return {
           local cat_options = {}
           for _, dir in ipairs(categories) do
             local name = vim.fn.fnamemodify(dir, ":t")
-            -- STRICT: Only add Categories starting with digits (e.g. 11-General)
-            if name:match("^%d%d%-") then
+
+            -- === STRICT SAFETY VALVE ===
+            -- 1. Must start with digits
+            -- 2. Must NOT be '02-Daily' (Protect Date Logic)
+            if name:match("^%d%d%-") and not name:match("^02%-") then
               table.insert(cat_options, name)
             end
+            -- ===========================
           end
 
           if #cat_options > 0 then
@@ -280,6 +279,7 @@ return {
               end
             end)
           else
+            -- Check root area for exclusion too if needed, but 02 is usually a subfolder of 00
             create_note_in_category(area_path, area_choice:sub(1, -2))
           end
         end)
