@@ -15,10 +15,10 @@ return {
           -- TELEMETRY SECTION (The Engineer's Pulse)
           {
             section = "terminal",
-            cmd = "bash ~/scripts/telem.sh", -- Points to your standard script location
+            cmd = "bash ~/.config/nvim/scripts/telem.sh", -- Points to your standard script location
             height = 1,
             padding = 1,
-            ttl = 60,
+            ttl = 60, -- Refresh every 5 seconds
             indent = 3,
             hl = "SnacksDashboardDesc",
           },
