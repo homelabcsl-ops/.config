@@ -32,7 +32,7 @@ return {
         -- TELEMETRY (Your System Monitor)
         {
           section = "terminal",
-          cmd = "bash ~/scripts/telem.sh",
+          cmd = "bash ~/.config/nvim/scripts/telem.sh",
           height = 1,
           padding = 1,
           ttl = 60,
