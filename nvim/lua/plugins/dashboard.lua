@@ -4,16 +4,22 @@ return {
     priority = 1000,
     lazy = false,
     opts = function(_, opts)
-      -- 1. CLEAR DEFAULTS (Kill the ghosts)
+      -- 1. FORCE THE HEADER (Overwrite the LazyVim logo)
       opts.dashboard = opts.dashboard or {}
       opts.dashboard.preset = opts.dashboard.preset or {}
-      opts.dashboard.preset.keys = nil -- Important: Disable default lookup
+      opts.dashboard.preset.header = [[
+    🏛️  DEVOPS KNOWLEDGE SYSTEM
+    STATUS: [PRODUCTION READY]
+      ]]
 
-      -- 2. DEFINE LAYOUT WITH INLINE KEYS
+      -- 2. DISABLE DEFAULT LOOKUPS (Stop the "Ghost Keys")
+      opts.dashboard.preset.keys = nil
+
+      -- 3. DEFINE SECTIONS (Hard-coded Keys)
       opts.dashboard.sections = {
         { section = "header" },
 
-        -- Telemetry (Fixing the 127 error: ensure script exists & is executable)
+        -- Telemetry Section (Must be executable!)
         {
           section = "terminal",
           cmd = "bash ~/scripts/telem.sh",
@@ -23,12 +29,13 @@ return {
           indent = 3,
         },
 
-        -- === GROUP 1: DEVOPS ===
+        -- === GROUP 1: DEVOPS WORKFLOW ===
         { text = "   🚀 DevOps Workflow", padding = 1, hl = "Title" },
         {
           section = "keys",
           gap = 1,
           padding = 1,
+          -- We define the buttons DIRECTLY here. No references.
           keys = {
             {
               icon = "🐧",
@@ -62,7 +69,7 @@ return {
           },
         },
 
-        -- === GROUP 3: ADMIN ===
+        -- === GROUP 3: SYSTEM ADMIN ===
         { text = "   🛠️ System Admin", padding = 1, hl = "Title" },
         {
           section = "keys",
