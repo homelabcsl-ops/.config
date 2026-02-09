@@ -1,20 +1,21 @@
 return {
   {
     "folke/snacks.nvim",
+    priority = 1000, -- ⚠️ FORCE OVERWRITE: Ensures defaults are deleted
     opts = function(_, opts)
       opts.dashboard = opts.dashboard or {}
+
+      -- 1. HEADER
       opts.dashboard.preset = opts.dashboard.preset or {}
-
-      -- 1. CLEAR DEFAULTS (Crucial Step to stop duplication)
-      opts.dashboard.preset.keys = nil
-
-      -- 2. HEADER
       opts.dashboard.preset.header = [[
     🏛️  DEVOPS KNOWLEDGE SYSTEM 
     STATUS: [PRODUCTION READY]
       ]]
 
-      -- 3. SECTIONS
+      -- 2. DISABLE DEFAULT KEYS (Prevents the "Ghost List")
+      opts.dashboard.preset.keys = nil
+
+      -- 3. DEFINE SECTIONS (Manual Mode)
       opts.dashboard.sections = {
         { section = "header" },
 
@@ -28,7 +29,7 @@ return {
           indent = 3,
         },
 
-        -- === GROUP 1: DEVOPS ===
+        -- === GROUP 1: DEVOPS WORKFLOW ===
         { text = "   🚀 DevOps Workflow", padding = 1, hl = "Title" },
         {
           section = "keys",
@@ -81,6 +82,7 @@ return {
               action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
             },
             { icon = "📦", key = "x", desc = "Lazy Extras", action = ":LazyExtras" },
+            -- Note: 'z' for Lazy, so 'l' stays free for LFCS
             { icon = "💤", key = "z", desc = "Lazy Plugin Mgr", action = ":Lazy", enabled = package.loaded.lazy },
             { icon = "❌", key = "q", desc = "Quit", action = ":qa" },
           },
