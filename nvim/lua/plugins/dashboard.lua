@@ -9,7 +9,7 @@ return {
     🏛️  DEVOPS KNOWLEDGE SYSTEM 
     STATUS: [PRODUCTION READY]
           ]],
-          -- This line prevents the default keys (f, n, q) from appearing
+          -- Disable default keys to prevent duplicates
           keys = {},
         },
 
@@ -17,7 +17,7 @@ return {
         sections = {
           { section = "header" },
 
-          -- TELEMETRY (Updated to find the script automatically)
+          -- TELEMETRY (Dynamic path to prevent Error 127)
           {
             section = "terminal",
             cmd = "bash " .. vim.fn.stdpath("config") .. "/scripts/telem.sh",
@@ -27,12 +27,13 @@ return {
             hl = "SnacksDashboardDesc",
           },
 
-          -- YOUR KEYS (Defined explicitly here)
+          -- 3. YOUR COMPLETE KEY LIST
           {
             section = "keys",
             gap = 1,
             padding = 1,
             keys = {
+              -- === DevOps Keys ===
               {
                 icon = "🐧",
                 key = "l",
@@ -47,15 +48,23 @@ return {
               },
               { icon = "☁️", key = "c", desc = "Cloud Resume", action = ":cd ~/dev/cloud-resume | :e main.tf" },
 
-              -- Standard Navigation Tools
+              -- === Navigation Keys ===
               { icon = "🔍", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
               { icon = "📝", key = "n", desc = "New File", action = ":ene | startinsert" },
+              { icon = "📂", key = "p", desc = "Projects", action = ":lua Snacks.dashboard.pick('projects')" },
+              { icon = "✨", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+              { icon = "⏱️", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+              { icon = "🔙", key = "s", desc = "Restore Session", section = "session" },
+
+              -- === Admin Keys ===
               {
                 icon = "⚙️",
                 key = "C",
                 desc = "Config",
                 action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
               },
+              { icon = "📦", key = "x", desc = "Lazy Extras", action = ":LazyExtras" },
+              { icon = "💤", key = "z", desc = "Lazy Plugin Mgr", action = ":Lazy", enabled = package.loaded.lazy },
               { icon = "❌", key = "q", desc = "Quit", action = ":qa" },
             },
           },
