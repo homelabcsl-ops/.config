@@ -5,17 +5,20 @@ return {
       opts.dashboard = opts.dashboard or {}
       opts.dashboard.preset = opts.dashboard.preset or {}
 
-      -- 1. HEADER
+      -- 1. CLEAR DEFAULTS (Crucial Step to stop duplication)
+      opts.dashboard.preset.keys = nil
+
+      -- 2. HEADER
       opts.dashboard.preset.header = [[
     🏛️  DEVOPS KNOWLEDGE SYSTEM 
     STATUS: [PRODUCTION READY]
       ]]
 
-      -- 2. SECTIONS WITH HEADERS
+      -- 3. SECTIONS
       opts.dashboard.sections = {
         { section = "header" },
 
-        -- TELEMETRY (The Pulse)
+        -- TELEMETRY
         {
           section = "terminal",
           cmd = "bash ~/scripts/telem.sh",
@@ -25,7 +28,7 @@ return {
           indent = 3,
         },
 
-        -- === HEADER 1: DEVOPS ===
+        -- === GROUP 1: DEVOPS ===
         { text = "   🚀 DevOps Workflow", padding = 1, hl = "Title" },
         {
           section = "keys",
@@ -48,7 +51,7 @@ return {
           },
         },
 
-        -- === HEADER 2: NAVIGATION ===
+        -- === GROUP 2: NAVIGATION ===
         { text = "   📂 Navigation", padding = 1, hl = "Title" },
         {
           section = "keys",
@@ -64,7 +67,7 @@ return {
           },
         },
 
-        -- === HEADER 3: SYSTEM ADMIN ===
+        -- === GROUP 3: SYSTEM ADMIN ===
         { text = "   🛠️ System Admin", padding = 1, hl = "Title" },
         {
           section = "keys",
