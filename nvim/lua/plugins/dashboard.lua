@@ -4,22 +4,22 @@ return {
     priority = 1000,
     lazy = false,
     opts = function(_, opts)
-      -- 1. CLEAN SLATE: Wipe defaults to stop duplicates
+      -- 1. CLEAN SLATE: Wipe the default keymap to stop duplicates
       opts.dashboard = opts.dashboard or {}
       opts.dashboard.preset = opts.dashboard.preset or {}
-      opts.dashboard.preset.keys = {} -- This kills the "Ghost Keys"
+      opts.dashboard.preset.keys = {} -- This prevents the "Ghost Keys"
 
       -- 2. HEADER
       opts.dashboard.preset.header = [[
-    🏛️  DEVOPS KNOWLEDGE SYSTEM 
+    🏛️  DEVOPS KNOWLEDGE SYSTEM
     STATUS: [PRODUCTION READY]
       ]]
 
-      -- 3. SECTIONS (With Telemetry & Inline Keys)
+      -- 3. SECTIONS (Everything defined INLINE)
       opts.dashboard.sections = {
         { section = "header" },
 
-        -- TELEMETRY (Restored as requested)
+        -- TELEMETRY (Using dynamic path)
         {
           section = "terminal",
           cmd = "bash " .. vim.fn.stdpath("config") .. "/scripts/telem.sh",
@@ -36,7 +36,7 @@ return {
           gap = 1,
           padding = 1,
           keys = {
-            -- WE DEFINE THE BUTTONS RIGHT HERE (No lookups)
+            -- DIRECT DEFINITIONS (No lookups = No blank screen)
             {
               icon = "🐧",
               key = "l",
