@@ -4,11 +4,12 @@ return {
     priority = 1000,
     lazy = false,
     opts = function(_, opts)
-      -- 1. FORCE CLEAN SLATE
-      -- We explicitly kill the default keys to stop duplicates.
       opts.dashboard = opts.dashboard or {}
       opts.dashboard.preset = opts.dashboard.preset or {}
-      opts.dashboard.preset.keys = {}
+
+      -- 1. DO NOT EMPTY THE KEY LIST
+      -- We leave preset.keys alone. This prevents the "Blank Screen".
+      -- We will simply ignore the defaults by providing our own buttons below.
 
       -- 2. HEADER
       opts.dashboard.preset.header = [[
@@ -16,11 +17,11 @@ return {
     STATUS: [PRODUCTION READY]
       ]]
 
-      -- 3. SECTIONS (With Inline Keys + RANDOM TEST KEY)
+      -- 3. SECTIONS
       opts.dashboard.sections = {
         { section = "header" },
 
-        -- TELEMETRY (Safe Path)
+        -- TELEMETRY (Dynamic path to fix Error 127)
         {
           section = "terminal",
           cmd = "bash " .. vim.fn.stdpath("config") .. "/scripts/telem.sh",
@@ -36,11 +37,10 @@ return {
           section = "keys",
           gap = 1,
           padding = 1,
+          -- INLINE DEFINITIONS: We define the buttons here.
+          -- Because we provide data, the dashboard will NOT load defaults.
           keys = {
-            -- 🟢 THE RANDOM TEST KEY (If you see this, it works!)
-            { icon = "🍕", key = "T", desc = "Test Function", action = ":echo 'System Verified!'" },
-
-            -- Your Real Keys
+            { icon = "🍕", key = "T", desc = "Test Function", action = ":echo 'Verified!'" }, -- Pizza Check
             {
               icon = "🐧",
               key = "l",
