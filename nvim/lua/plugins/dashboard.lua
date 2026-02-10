@@ -4,22 +4,23 @@ return {
     priority = 1000,
     lazy = false,
     opts = function(_, opts)
-      -- 1. CLEAN SLATE: Wipe the default keymap to stop duplicates
+      -- 1. FORCE CLEAN SLATE
+      -- We explicitly kill the default keys to stop duplicates.
       opts.dashboard = opts.dashboard or {}
       opts.dashboard.preset = opts.dashboard.preset or {}
-      opts.dashboard.preset.keys = {} -- This prevents the "Ghost Keys"
+      opts.dashboard.preset.keys = {}
 
       -- 2. HEADER
       opts.dashboard.preset.header = [[
-    🏛️  DEVOPS KNOWLEDGE SYSTEM
+    🏛️  DEVOPS KNOWLEDGE SYSTEM 
     STATUS: [PRODUCTION READY]
       ]]
 
-      -- 3. SECTIONS (Everything defined INLINE)
+      -- 3. SECTIONS (With Inline Keys + RANDOM TEST KEY)
       opts.dashboard.sections = {
         { section = "header" },
 
-        -- TELEMETRY (Using dynamic path)
+        -- TELEMETRY (Safe Path)
         {
           section = "terminal",
           cmd = "bash " .. vim.fn.stdpath("config") .. "/scripts/telem.sh",
@@ -36,7 +37,10 @@ return {
           gap = 1,
           padding = 1,
           keys = {
-            -- DIRECT DEFINITIONS (No lookups = No blank screen)
+            -- 🟢 THE RANDOM TEST KEY (If you see this, it works!)
+            { icon = "🍕", key = "T", desc = "Test Function", action = ":echo 'System Verified!'" },
+
+            -- Your Real Keys
             {
               icon = "🐧",
               key = "l",
