@@ -3,21 +3,19 @@ return {
     "folke/snacks.nvim",
     opts = {
       dashboard = {
-        -- 1. HEADER & PRESET
         preset = {
           header = [[
-    🏛️  DEVOPS KNOWLEDGE SYSTEM 
+    🏛️  DEVOPS KNOWLEDGE SYSTEM
     STATUS: [PRODUCTION READY]
           ]],
-          -- Disable default keys to prevent duplicates
+          -- 1. KEEP THIS: Disables the "Ghost Keys" (duplicates)
           keys = {},
         },
 
-        -- 2. SECTIONS
         sections = {
           { section = "header" },
 
-          -- TELEMETRY (Dynamic path to prevent Error 127)
+          -- 2. TELEMETRY (Fixed path to avoid Error 127)
           {
             section = "terminal",
             cmd = "bash " .. vim.fn.stdpath("config") .. "/scripts/telem.sh",
@@ -27,13 +25,13 @@ return {
             hl = "SnacksDashboardDesc",
           },
 
-          -- 3. YOUR COMPLETE KEY LIST
+          -- 3. DEVOPS GROUP (Defined Explicitly)
+          { text = "   🚀 DevOps Workflow", padding = 1, hl = "Title" },
           {
             section = "keys",
             gap = 1,
             padding = 1,
             keys = {
-              -- === DevOps Keys ===
               {
                 icon = "🐧",
                 key = "l",
@@ -47,16 +45,32 @@ return {
                 action = ":e ~/obsidian/devops/50-Software-Lab/51-Web-Foundations/Odin-Log.md",
               },
               { icon = "☁️", key = "c", desc = "Cloud Resume", action = ":cd ~/dev/cloud-resume | :e main.tf" },
+            },
+          },
 
-              -- === Navigation Keys ===
+          -- 4. NAVIGATION GROUP (Defined Explicitly)
+          { text = "   📂 Navigation", padding = 1, hl = "Title" },
+          {
+            section = "keys",
+            gap = 1,
+            padding = 1,
+            keys = {
               { icon = "🔍", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
               { icon = "📝", key = "n", desc = "New File", action = ":ene | startinsert" },
               { icon = "📂", key = "p", desc = "Projects", action = ":lua Snacks.dashboard.pick('projects')" },
               { icon = "✨", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
               { icon = "⏱️", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
               { icon = "🔙", key = "s", desc = "Restore Session", section = "session" },
+            },
+          },
 
-              -- === Admin Keys ===
+          -- 5. ADMIN GROUP (Defined Explicitly)
+          { text = "   🛠️ System Admin", padding = 1, hl = "Title" },
+          {
+            section = "keys",
+            gap = 1,
+            padding = 1,
+            keys = {
               {
                 icon = "⚙️",
                 key = "C",
