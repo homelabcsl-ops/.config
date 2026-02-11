@@ -14,6 +14,7 @@ return {
   {
     "devops-knowledge-system",
     dir = vim.fn.stdpath("config"),
+    dependencies = { "nvim-lua/plenary.nvim" }, -- Ensure plenary is available for scanning
     config = function()
       -- --- CONFIGURATION (ALIGNED) ---
       -- We point this to the SAME vault defined in knowledge.lua
