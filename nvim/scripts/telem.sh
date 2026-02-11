@@ -1,20 +1,12 @@
 #!/bin/bash
+# DKS v1.6.1 - Telemetry Persistence Patch
 
-# DKS Telemetry
-# Context: Mac Mini 2025 // DevOps Training
+CPU=$(sysctl -n vm.loadavg | awk '{print $2}')
+K8S=$(kubectl config current-context 2>/dev/null || echo "None")
 
-# 1. Get Uptime
-UPTIME=$(uptime | awk -F'( |,|:)+' '{print $6 "h " $7 "m"}')
+# Clear the line and print
+echo -e "\r󰻠 CPU: $CPU | 󱠔 K8S: $K8S"
 
-# 2. Get Date/Time (for 11pm check)
-NOW=$(date +"%H:%M")
-
-# 3. Simple Countdown (Adjust date to your exam target)
-TARGET_DATE="2026-06-01"
-DAYS_LEFT=$((($(date -d "$TARGET_DATE" +%s) - $(date +%s)) / 86400))
-
-echo "  ----------------------------------------"
-echo "  🕒 TIME: $NOW   |   ⚡ UPTIME: $UPTIME"
-echo "  🎯 FOCUS: LFCS & Cloud Resume Challenge"
-echo "  📅 EXAM TARGET: $DAYS_LEFT Days Remaining"
-echo "  ----------------------------------------"
+# Optional: keep the process open for 2 seconds to ensure
+# the dashboard renders the output before the buffer closes
+sleep 2
