@@ -1,14 +1,20 @@
 # ==============================================================================
-# 🏛️ DEVOPS KNOWLEDGE SYSTEM: AEROSPACE v2.2
-# Domain-Aligned Workflow (Streamlined: Engineering, Chrome, Discord, System)
+# 🏛️ DEVOPS KNOWLEDGE SYSTEM: AEROSPACE v2.2 [TITANIUM EDITION]
+# "Frictionless Workflow" - Auto-Routing for WezTerm, Bastion, & Chrome
 # ==============================================================================
 
 # 1. CORE BEHAVIOR
+# ------------------------------------------------------------------------------
 start-at-login = true
 enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = false
 
-# 2. TITANIUM AESTHETIC
+# The "Accordion" layout is often better for ultrawide/large screens
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# 2. TITANIUM AESTHETIC (Gaps)
+# ------------------------------------------------------------------------------
 [gaps]
 inner.horizontal = 10
 inner.vertical = 10
@@ -17,48 +23,54 @@ outer.bottom = 10
 outer.top = 10
 outer.right = 10
 
-# 3. DOMAIN MAPPING
+# 3. KEY BINDINGS (VIM NAVIGATION)
 # ------------------------------------------------------------------------------
-# WS 1: ENGINEERING MODE -> Terminal (WezTerm/Ghostty), Docker
-# WS 2: CHROME MODE      -> Google Chrome
-# WS 3: DISCORD          -> Discord
-# WS 4: SYSTEM CONFIG    -> Finder, System Settings
-
 [mode.main.binding]
+
+# --- Service Mode Trigger (The "God Mode" Switch) ---
 alt-shift-semicolon = 'mode service'
 
-# --- Context Switching ---
+# --- Application Launchers (Optional Speed Keys) ---
+alt-return = 'exec-and-forget open -a WezTerm'
+
+# --- Window Focus (Vim HJKL) ---
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+
+# --- Window Movement (Vim HJKL) ---
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# --- Workspace Switching ---
 alt-1 = 'workspace 1'
 alt-2 = 'workspace 2'
 alt-3 = 'workspace 3'
 alt-4 = 'workspace 4'
 alt-5 = 'workspace 5'
 
-# --- Window Movement ---
+# --- Move Window to Workspace ---
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'
 alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
 
-# 4. VIM NAVIGATION
-# ------------------------------------------------------------------------------
-alt-h = 'focus left'
-alt-j = 'focus down'
-alt-k = 'focus up'
-alt-l = 'focus right'
-
-alt-shift-h = 'move left'
-alt-shift-j = 'move down'
-alt-shift-k = 'move up'
-alt-shift-l = 'move right'
-
+# --- Utilities ---
 alt-f = 'fullscreen'
 alt-tab = 'workspace-back-and-forth'
+alt-s = 'layout v_accordion'         # Stack windows vertically
+alt-w = 'layout h_accordion'         # Stack windows horizontally
+alt-e = 'layout tiles'               # Standard tiling
 
-# 5. AUTOMATION RULES (The Router)
+# 4. AUTOMATION RULES (The Router)
 # ------------------------------------------------------------------------------
+# Defines exactly where applications land when they open.
 
-# --- WS 1: ENGINEERING MODE ---
+# --- WS 1: ENGINEERING MODE (Bastion Home) ---
 [[on-window-detected]]
 if.app-id = 'com.github.wez.wezterm'
 run = 'move-node-to-workspace 1'
@@ -90,13 +102,15 @@ run = 'move-node-to-workspace 4'
 if.app-id = 'com.apple.systempreferences'
 run = 'move-node-to-workspace 4'
 
-# 6. SERVICE MODE
+# --- WS 5: IPAD / SERVER LINK ---
+# Matches the specific window title for your iPad workflow
+[[on-window-detected]]
+if.window-title-regex-substring = 'IPAD_SERVER'
+run = 'move-node-to-workspace 5'
+
+# 5. SERVICE MODE (System Management)
 # ------------------------------------------------------------------------------
 [mode.service.binding]
 esc = 'mode main'
 r = ['reload-config', 'mode main']
 backspace = ['close-all-windows-but-current', 'mode main']
-
-[[on-window-detected]]
-if.window-title-regex-substring = 'IPAD_SERVER'
-run = 'move-node-to-workspace 5'
