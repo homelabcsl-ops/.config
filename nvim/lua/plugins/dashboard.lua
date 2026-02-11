@@ -11,40 +11,17 @@ return {
         },
         sections = {
           { section = "header" },
-          -- Telemetry: Adjusted TTL to 5s to match your comment
+          -- Use a Terminal section to run your v1.6.0 Telemetry script
           {
             section = "terminal",
-            cmd = "bash ~/.config/nvim/scripts/telem.sh",
-            height = 3, -- Increased height to show Training stats
+            cmd = "bash ~/.config/nvim/scripts/telem.sh", -- Update this path
+            height = 1,
             padding = 1,
-            ttl = 5,
+            ttl = 60, -- Refresh every 5 seconds
             hl = "SnacksDashboardDesc",
           },
-          { section = "keys", gap = 1, padding = 1 }, -- Increased gap for readability
+          { section = "keys", gap = 0, padding = 1 },
           { section = "startup" },
-        },
-        -- NEW: Specific Training Shortcuts
-        keys = {
-          {
-            icon = "🐧",
-            key = "l",
-            desc = "LFCS Training (O'Reilly)",
-            action = ":e ~/obsidian/dks/training/lfcs/master_log.md",
-          },
-          {
-            icon = "⚡",
-            key = "o",
-            desc = "Odin Project (Foundations)",
-            action = ":e ~/obsidian/dks/training/odin/progress.md",
-          },
-          {
-            icon = "☁️",
-            key = "c",
-            desc = "Cloud Resume Challenge",
-            action = ":cd ~/dev/cloud-resume | :e main.tf",
-          },
-          { icon = "📝", key = "n", desc = "New DKS Note", action = ":ene | startinsert" },
-          { icon = "❌", key = "q", desc = "Quit", action = ":qa" },
         },
       },
     },
